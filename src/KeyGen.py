@@ -1,7 +1,7 @@
 import numpy as np
 
 n = 4
-q = 1666
+q = 50
 
 
 def mod_mult(m1, m2):
@@ -13,12 +13,11 @@ def mod_add(m1, m2):
 def mod_sub(m1, m2):
     return (m1 - m2) % q
 
-def keyGen(s):
-    a = np.random.randint(q, size=(n, n))
+def keyGen(a, s):
     e = np.random.randint(3, size=(n, 1)) - 1
     t = mod_mult(a, s)
     t = mod_add(t, e)
-    return a, t
+    return t
 
 def encrypt(a, t, m, e1, e2):
     r = np.random.randint(3, size=n) - 1
@@ -38,8 +37,10 @@ def decrypt(s, u, v):
         return 0
 
 def main():
+    a = np.random.randint(q, size=(n, n))
+
     s = np.random.randint(3, size=(n, 1)) - 1
-    a, t = keyGen(s)
+    a, t = keyGen(a, s)
     print("Public Key (a):")
     print(a)
     print("\nSecret Key (t):")
@@ -55,7 +56,7 @@ def main():
     # Correct the comparison conditions
 
 
-    print("\nDecrypted Message (me):")
+    print("\nDecrypted Message:")
     print(m_to_check)
     print("\nIs Decrypted Message equal to Original Message?")
     print(m_to_check == m[0])
