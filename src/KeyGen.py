@@ -37,13 +37,15 @@ def decrypt(s, u, v):
         return 0
 
 def main():
-    a = np.random.randint(q, size=(n, n))
-
+    a_first_column = np.random.randint(q, size=(n, 1))
+    a = a_first_column
+    for i in range(1, n):
+        a = np.hstack((a, np.roll(a_first_column, i)))
     s = np.random.randint(3, size=(n, 1)) - 1
-    a, t = keyGen(a, s)
+    t = keyGen(a, s)
     print("Public Key (a):")
     print(a)
-    print("\nSecret Key (t):")
+    print("\nother public Key (t):")
     print(t)
     m = np.random.randint(2, size=1)
     print("\nOriginal Message (m):")
