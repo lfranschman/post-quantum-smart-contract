@@ -7,6 +7,8 @@ print("Initializing a large field...")
 order = 2**8 + 1
 GF = galois.GF(order)
 print("Field initialized")
+s = GF(np.array([1, 22, 38, 21, 14, 37, 19, 1, 0, 1, 1, 21, 0, 37, 0, 21, 37]))
+
 
 # x = GF(np.array([1,2,3,4,5,6,7,8]))
 # L3_column = GF(np.array([0,0,0,0,1,1,1,1]))
@@ -61,6 +63,32 @@ for i in range(len(U_polys)):
     V += V_polys[i]
     W += W_polys[i]
 
-print("U: ", U)
-print("V: ", V)
-print("W: ", W)
+print("U: ", U.degree)
+print("V: ", V.degree)
+print("W: ", W.degree)
+
+def get_polys_of_S_matrix(matrix):
+    polys = []
+    nb_of_columns = len(matrix)
+    # for each column
+    for col_id in range(nb_of_columns):
+        polys.append(galois.Poly([matrix[0]], field=GF))
+    return np.array(polys)
+
+
+A_polys = get_polys_of_S_matrix(s)
+Ua = galois.Poly([0], field=GF)
+for i in range(len(s)):
+    Ua += U_polys[i] * s[i]
+
+Va = galois.Poly([0], field=GF)
+for i in range(len(s)):
+    Va += V_polys[i] * s[i]
+
+Wa = galois.Poly([0], field=GF)
+for i in range(len(s)):
+    Wa += W_polys[i] * s[i]
+
+print("Ua: ", Ua.degree)
+print("Va: ", Va.degree)
+print("Wa: ", Wa.degree)
