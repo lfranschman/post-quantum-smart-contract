@@ -1,0 +1,66 @@
+import galois
+import numpy as np
+import fromLWEtoR1CS as r1
+
+
+print("Initializing a large field...")
+order = 2**8 + 1
+GF = galois.GF(order)
+print("Field initialized")
+
+# x = GF(np.array([1,2,3,4,5,6,7,8]))
+# L3_column = GF(np.array([0,0,0,0,1,1,1,1]))
+#
+# L3_poly = galois.lagrange_poly(x, L3_column)
+#
+# print("The resulting polynomial is:\n", L3_poly, sep='')
+#
+# # Checking each column element
+# print("L3_poly(1) == 0:", L3_poly(1) == 0)
+# print("L3_poly(2) == 0:", L3_poly(2) == 0)
+# print("L3_poly(3) == 0:", L3_poly(3) == 0)
+# print("L3_poly(4) == 0:", L3_poly(4) == 0)
+# print("L3_poly(5) == 1:", L3_poly(5) == 1)
+# print("L3_poly(6) == 1:", L3_poly(6) == 1)
+# print("L3_poly(7) == 1:", L3_poly(7) == 1)
+# print("L3_poly(8) == 1:", L3_poly(8) == 1)
+
+
+def interpolate_column(col, nb):
+    xs = GF(np.arange(1,nb+1))
+    # print(col)
+    return galois.lagrange_poly(xs, col)
+
+def get_polys_of_matrix(matrix):
+    polys = []
+    nb_of_rows = len(matrix)
+    nb_of_columns = len(matrix[0])
+    # for each column
+    for col_id in range(nb_of_columns):
+        column = []
+        for row in range(nb_of_rows):
+            column.append(matrix[row][col_id])
+        polys.append(interpolate_column(GF(np.array(column)), nb_of_rows))
+    return np.array(polys)
+
+A, B, C = r1.LWEToR1CS_transform()
+## computes all interpolated polynomials for L, R, and O
+U_polys = get_polys_of_matrix(A)
+V_polys = get_polys_of_matrix(B)
+W_polys = get_polys_of_matrix(C)
+
+# Summing all the polynamials of the collection into one polynomial
+U = galois.Poly([0], field=GF)
+V = galois.Poly([0], field=GF)
+W = galois.Poly([0], field=GF)
+print("U first check: ", U_polys)
+print("V first check: ", V_polys)
+print("W first check: ", W_polys)
+for i in range(len(U_polys)):
+    U += U_polys[i]
+    V += V_polys[i]
+    W += W_polys[i]
+
+print("U: ", U)
+print("V: ", V)
+print("W: ", W)
