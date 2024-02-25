@@ -1,6 +1,8 @@
 import numpy as np
+import sys
 
 from src.KeyGen import keyGen
+np.set_printoptions(threshold=sys.maxsize)
 
 n = 4
 q = 50
@@ -22,100 +24,39 @@ def LWEToR1CS_transform(a, s, e, t):
         B_matrix[i][1 + n + n*n + (i % n)] = 1
         C_matrix[i][1 + 3*n + n*n + i] = 1
 
-    # processing gates c0-cn^2
+    # processing gates c0-cn^2 and outputs/t
+    c = 0
+    d = 0
+    z = 0
+    p = 0
     for i in range(n*n):
+        B_matrix[n*n + i][0] = 1
         if (i % n) == 0:
             A_matrix[n*n + i][1 + 3*n + i + n*n] = 1
             A_matrix[n*n + i][1 + 3*n + n*n + i + 1] = 1
+            C_matrix[n*n + i][1 + 3 * n + z + 2 * n * n] = 1
+            z = z + 1
 
-    i = 0
-    while i < n:
-        if ((i+1) % n) == 0:
-              if (1 + 3 * n + i + 2 * n * n < num_variables):
-                A_matrix[n*n + i][1 + 3 * n + i + 2 * n * n - 1] = 1
-                A_matrix[n*n + i][1 + 2*n + i + n*n] = 1
-                i = i + 1
-    # for i in range(n * n):
-    #     if ((i+1) % n) != 0 & (i % n) !=0:
-    #         if(1 + 3 * n + i + 2* n * n < num_variables):
-    #             A_matrix[n * n + i][1 + 3 * n + i + n * n + 1] = 1
-    #             A_matrix[n * n + i][1 + 3 * n + i + 2 * n * n - 1] = 1
+        elif ((i + 1) % n) != 0:
+            A_matrix[n * n + i][1 + 3 * n + i + n * n + 1] = 1
+            A_matrix[n*n + i][1 + 3 * n + c + 2 * n * n] = 1
+            C_matrix[n*n + i][1 + 3 * n + z + 2 * n * n] = 1
+            c = c + 1
+            z = z + 1
 
+        else:
+            if 1 + 3 * n + c + 2 * n * n < num_variables:
+                A_matrix[n*n + i][1 + 3 * n + c + 2 * n * n] = 1
+                A_matrix[n*n + i][1 + 2 * n + n*n + d] = 1
+                C_matrix[n*n + i][1 + p] = 1
+                c = c + 1
+                d = d + 1
+                p = p + 1
 
-
-
-
-
-    # print(A_matrix[0])
-    # print(A_matrix[1])
-    # print(A_matrix[2])
-    # print(A_matrix[3])
-    # print(A_matrix[4])
-    # print(A_matrix[5])
-    # print(A_matrix[6])
-    # print(A_matrix[7])
-    # print(A_matrix[8])
-    # print(A_matrix[9])
-    # print(A_matrix[10])
-    # print(A_matrix[11])
-    # print(A_matrix[12])
-    # print(A_matrix[13])
-    # print(A_matrix[14])
-    # print(A_matrix[15])
-    print(A_matrix[16])
-    print(A_matrix[17])
-    print(A_matrix[18])
-    print(A_matrix[19])
-    print(A_matrix[20])
-    print(A_matrix[21])
-    print(A_matrix[22])
-    print(A_matrix[23])
-    print(A_matrix[24])
-    print(A_matrix[25])
-    print(A_matrix[26])
-    print(A_matrix[27])
-    print(A_matrix[28])
-    print(A_matrix[29])
-    print(A_matrix[30])
-    print(A_matrix[31])
+    print(C_matrix)
 
 
-    # print(B_matrix[0])
-    # print(B_matrix[1])
-    # print(B_matrix[2])
-    # print(B_matrix[3])
-    # print(B_matrix[4])
-    # print(B_matrix[5])
-    # print(B_matrix[6])
-    # print(B_matrix[7])
-    # print(B_matrix[8])
-    # print(B_matrix[9])
-    # print(B_matrix[10])
-    # print(B_matrix[11])
-    # print(B_matrix[12])
-    # print(B_matrix[13])
-    # print(B_matrix[14])
-    # print(B_matrix[15])
-    # print(B_matrix[16])
-    #
-    # print(C_matrix[0])
-    # print(C_matrix[1])
-    # print(C_matrix[2])
-    # print(C_matrix[3])
-    # print(C_matrix[4])
-    # print(C_matrix[5])
-    # print(C_matrix[6])
-    # print(C_matrix[7])
-    # print(C_matrix[8])
-    # print(C_matrix[9])
-    # print(C_matrix[10])
-    # print(C_matrix[11])
-    # print(C_matrix[12])
-    # print(C_matrix[13])
-    # print(C_matrix[14])
-    # print(C_matrix[15])
-    # print(C_matrix[16])
-    # print(C_matrix[17])
+
 
     return A_matrix
 
