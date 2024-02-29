@@ -45,27 +45,41 @@ def get_polys_of_matrix(matrix):
         polys.append(interpolate_column(GF(np.array(column)), nb_of_rows))
     return np.array(polys)
 
-A, B, C = r1.LWEToR1CS_transform()
-## computes all interpolated polynomials for L, R, and O
-U_polys = get_polys_of_matrix(A)
-V_polys = get_polys_of_matrix(B)
-W_polys = get_polys_of_matrix(C)
+def polySum():
+    A, B, C = r1.LWEToR1CS_transform()
+    ## computes all interpolated polynomials for L, R, and O
+    U_polys = get_polys_of_matrix(A)
+    V_polys = get_polys_of_matrix(B)
+    W_polys = get_polys_of_matrix(C)
 
-# Summing all the polynamials of the collection into one polynomial
-U = galois.Poly([0], field=GF)
-V = galois.Poly([0], field=GF)
-W = galois.Poly([0], field=GF)
-print("U first check: ", U_polys)
-print("V first check: ", V_polys)
-print("W first check: ", W_polys)
-for i in range(len(U_polys)):
-    U += U_polys[i]
-    V += V_polys[i]
-    W += W_polys[i]
+    # Summing all the polynamials of the collection into one polynomial
+    U = galois.Poly([0], field=GF)
+    V = galois.Poly([0], field=GF)
+    W = galois.Poly([0], field=GF)
+    print("U first check: ", U_polys)
+    print("V first check: ", V_polys)
+    print("W first check: ", W_polys)
+    for i in range(len(U_polys)):
+        U += U_polys[i]
+        V += V_polys[i]
+        W += W_polys[i]
+    # A_polys = get_polys_of_S_matrix(s)
 
-print("U: ", U.degree)
-print("V: ", V.degree)
-print("W: ", W.degree)
+    Ua = galois.Poly([0], field=GF)
+    for i in range(len(s)):
+        Ua += U_polys[i] * s[i]
+
+    Va = galois.Poly([0], field=GF)
+    for i in range(len(s)):
+        Va += V_polys[i] * s[i]
+
+    Wa = galois.Poly([0], field=GF)
+    for i in range(len(s)):
+        Wa += W_polys[i] * s[i]
+    print("Ua: ", Ua)
+    print("Va: ", Va)
+    print("Wa: ", Wa)
+    return U, V, W, Ua, Va, Wa
 
 def get_polys_of_S_matrix(matrix):
     polys = []
@@ -76,19 +90,10 @@ def get_polys_of_S_matrix(matrix):
     return np.array(polys)
 
 
-A_polys = get_polys_of_S_matrix(s)
-Ua = galois.Poly([0], field=GF)
-for i in range(len(s)):
-    Ua += U_polys[i] * s[i]
 
-Va = galois.Poly([0], field=GF)
-for i in range(len(s)):
-    Va += V_polys[i] * s[i]
 
-Wa = galois.Poly([0], field=GF)
-for i in range(len(s)):
-    Wa += W_polys[i] * s[i]
+# print("Ua: ", Ua.degree)
+# print("Va: ", Va.degree)
+# print("Wa: ", Wa.degree)
 
-print("Ua: ", Ua.degree)
-print("Va: ", Va.degree)
-print("Wa: ", Wa.degree)
+

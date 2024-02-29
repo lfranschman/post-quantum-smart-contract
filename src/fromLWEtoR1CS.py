@@ -1,11 +1,8 @@
 import numpy as np
 import sys
-import galois
 
-from src.KeyGen import keyGen
 np.set_printoptions(threshold=sys.maxsize)
-order = 2**8 + 1
-GF = galois.GF(order)
+
 n = 2
 q = 50
 
@@ -63,13 +60,6 @@ def LWEToR1CS_transform():
     return A_matrix, B_matrix, C_matrix
 
 def main():
-    # a_first_column = np.random.randint(q, size=(n, 1))
-    # a = a_first_column
-    # for i in range(1, n):
-    #     a = np.hstack((a, np.roll(a_first_column, i)))
-    s = np.random.randint(3, size=(17, 1)) - 1
-    # t = keyGen(a, s)
-    # e = np.random.randint(3, size=(n, 1)) - 1
     MA, MB, MC = LWEToR1CS_transform()
     s = np.array([1, 22, 38, 21, 14, 37, 19, 1, 0, 1, 1, 21, 0, 37, 0, 21, 37])
 

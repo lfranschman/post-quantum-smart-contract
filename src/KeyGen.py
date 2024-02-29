@@ -13,8 +13,7 @@ def mod_add(m1, m2):
 def mod_sub(m1, m2):
     return (m1 - m2) % q
 
-def keyGen(a, s):
-    e = np.random.randint(3, size=(n, 1)) - 1
+def keyGen(a, s, e):
     t = mod_mult(a, s)
     t = mod_add(t, e)
     return t
@@ -42,7 +41,8 @@ def main():
     for i in range(1, n):
         a = np.hstack((a, np.roll(a_first_column, i)))
     s = np.random.randint(3, size=(n, 1)) - 1
-    t = keyGen(a, s)
+    e = np.random.randint(3, size=(n, 1)) - 1
+    t = keyGen(a, s, e)
     print("Public Key (a):")
     print(a)
     print("\nother public Key (t):")
