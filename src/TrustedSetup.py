@@ -30,16 +30,17 @@ beta = np.random.randint(q)
 # n degree of polynomials
 A, B, C = r1.LWEToR1CS_transform()
 n = len(A)-1
+print("n check: ", n)
 # public inputs (matrix a and vector t)
 l = 2
 # private inputs = total inputs - public inputs
 m = len(A[0])
 
-# Compute T(x)
-T_coefficients = [-1] + [0] * (n - 1)  # T = (x - 1)
+T_coefficients = [-1]
 T = galois.Poly(T_coefficients, field=galois.GF(q))
-for i in range(2, n + 1):
-    T *= galois.Poly([-i, 1], field=galois.GF(q))
+for i in range(2, len(A)):
+    T *= galois.Poly([1, -i], field=galois.GF(q))
+
 
 # t(tau)
 tTau = T(tau)
