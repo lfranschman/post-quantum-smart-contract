@@ -36,30 +36,42 @@ l = 2
 # private inputs = total inputs - public inputs
 m = len(A[0])
 
-T_coefficients = [-1]
+T_coefficients = [1]
 T = galois.Poly(T_coefficients, field=galois.GF(q))
-for i in range(2, len(A)):
+for i in range(2, len(A) + 1):
     T *= galois.Poly([1, -i], field=galois.GF(q))
 
+def getTau():
+    # t(tau)
+    tTau = T(tau)
 
-# t(tau)
-tTau = T(tau)
+    # powers of tau for [A] and [C] (on a)
+    tau_a = []
+    # powers of tau for [B] (on t)
+    tau_t = []
+    # Powers of tau for [A] and [C] (on lattice)
+    for i in range(T.degree + 1):
+        local_tau = int(tau ** i)
+        tau_a.append(a * local_tau)
+        tau_t.append(t * local_tau)
 
-# Powers of tau for [A] and [C] (on lattice)
-tau_A = A * tau
-tau_t = t * tau
+    # Powers of tau for h(tau)t(tau)
+    t_a = []
+    for i in range(T.degree + 1):
+        local_tau = int(tau ** i)
+        tmp = (local_tau * T(tau))
+        t_a.append(a * int(tmp))
+    return tau, tTau, tau_a, tau_t, t_a, a, t
 
-# Powers of tau for h(tau)t(tau)
-t_A = A * tTau
-t_t = t * tTau
 
+tau, tTau, tau_A, tau_t, t_A, a, t = getTau()
 # Print the results
 print("tau: ", tau)
 print("Ttau: ", tTau)
 print("Powers of tau for [A]:\n", tau_A)
 print("Powers of tau for [t]:\n", tau_t)
 print("Powers of tau for h(tau)t(tau) [A]:\n", t_A)
-print("Powers of tau for h(tau)t(tau) [t]:\n", t_t)
+# print("Powers of tau for h(tau)t(tau) [t]:\n", t_t)
 
 
 def hxBalancing(Ua, Va, Wa):
@@ -71,6 +83,7 @@ def hxBalancing(Ua, Va, Wa):
     print("Ua(tau) * Va(tau) - Wa(tau) == H(T(tau)):", Ua(tau) * Va(tau) - Wa(tau) == H(tau) * T(tau))
     print("deg(T) =", T.degree)
     print("deg(H) =", H.degree)
+    return H
 
 
 U, V, W, Ua, Va, Wa = qap.polySum()

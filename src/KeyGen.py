@@ -145,5 +145,21 @@ def check():
     print("V: ", V)
     print("W: ", W)
 
+    Ua = galois.Poly([0], field=GF)
+    for i in range(len(s)):
+        Ua += U_polys[i] * s[i]
+
+    Va = galois.Poly([0], field=GF)
+    for i in range(len(s)):
+        Va += V_polys[i] * s[i]
+
+    Wa = galois.Poly([0], field=GF)
+    for i in range(len(s)):
+        Wa += W_polys[i] * s[i]
+
+    print("Ua: ", Ua)
+    print("Va: ", Va)
+    print("Wa: ", Wa)
+
 if __name__ == "__main__":
-    main()
+    check()

@@ -30,7 +30,7 @@ s = GF(np.array([1, 22, 38, 21, 14, 37, 19, 1, 0, 1, 1, 21, 0, 37, 0, 21, 37]))
 
 def interpolate_column(col, nb):
     xs = GF(np.arange(1, nb+1))
-    print(col)
+    # print(col)
     return galois.lagrange_poly(xs, col)
 
 def get_polys_of_matrix(matrix):
@@ -47,7 +47,7 @@ def get_polys_of_matrix(matrix):
 
 def polySum():
     A, B, C = r1.LWEToR1CS_transform()
-    print("Extra A check: ", A)
+    # print("Extra A check: ", A)
     ## computes all interpolated polynomials for L, R, and O
     U_polys = get_polys_of_matrix(A)
     V_polys = get_polys_of_matrix(B)
@@ -57,9 +57,9 @@ def polySum():
     U = galois.Poly([0], field=GF)
     V = galois.Poly([0], field=GF)
     W = galois.Poly([0], field=GF)
-    print("U first check: ", U_polys)
-    print("V first check: ", V_polys)
-    print("W first check: ", W_polys)
+    # print("U first check: ", U_polys)
+    # print("V first check: ", V_polys)
+    # print("W first check: ", W_polys)
     for i in range(len(U_polys)):
         U += U_polys[i]
         V += V_polys[i]
@@ -78,21 +78,21 @@ def polySum():
     for i in range(len(s)):
         Wa += W_polys[i] * s[i]
 
-    print("U: ", U)
-    print("V: ", V)
-    print("W: ", W)
-
-    print("Ua: ", Ua)
-    print("Va: ", Va)
-    print("Wa: ", Wa)
-
-    print("U degree: ", U.degree)
-    print("V degree: ", V.degree)
-    print("W degree: ", W.degree)
-
-    print("Ua degree: ", Ua.degree)
-    print("Va degree: ", Va.degree)
-    print("Wa degree: ", Wa.degree)
+    # print("U: ", U)
+    # print("V: ", V)
+    # print("W: ", W)
+    #
+    # print("Ua: ", Ua)
+    # print("Va: ", Va)
+    # print("Wa: ", Wa)
+    #
+    # print("U degree: ", U.degree)
+    # print("V degree: ", V.degree)
+    # print("W degree: ", W.degree)
+    #
+    # print("Ua degree: ", Ua.degree)
+    # print("Va degree: ", Va.degree)
+    # print("Wa degree: ", Wa.degree)
 
     return U, V, W, Ua, Va, Wa
 
