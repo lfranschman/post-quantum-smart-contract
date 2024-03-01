@@ -107,8 +107,4 @@ def get_polys_of_S_matrix(matrix):
 
 
 
-# print("Ua: ", Ua.degree)
-# print("Va: ", Va.degree)
-# print("Wa: ", Wa.degree)
-
 

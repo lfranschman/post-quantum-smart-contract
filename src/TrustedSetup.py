@@ -66,11 +66,11 @@ def getTau():
 
 tau, tTau, tau_A, tau_t, t_A, a, t = getTau()
 # Print the results
-print("tau: ", tau)
-print("Ttau: ", tTau)
-print("Powers of tau for [A]:\n", tau_A)
-print("Powers of tau for [t]:\n", tau_t)
-print("Powers of tau for h(tau)t(tau) [A]:\n", t_A)
+# print("tau: ", tau)
+# print("Ttau: ", tTau)
+# print("Powers of tau for [A]:\n", tau_A)
+# print("Powers of tau for [t]:\n", tau_t)
+# print("Powers of tau for h(tau)t(tau) [A]:\n", t_A)
 # print("Powers of tau for h(tau)t(tau) [t]:\n", t_t)
 
 

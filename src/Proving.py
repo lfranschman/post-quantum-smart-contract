@@ -39,5 +39,22 @@ C_1 = tmp_C + HT_tau
 print("C_1: ",  C_1)
 
 proof = [A_1, B_2, C_1]
-print("proof :", proof)
-print(np.dot(A_1, B_2) == np.dot(C_1, t))
+# print("proof :", proof)
+print(A_1 * B_2 == C_1 * tTau)
+
+
+# def pairing_verification(A, B, C, tTau):
+#     pairing_lhs = np.dot(A, B)
+#     pairing_rhs = np.dot(C, tTau)
+#
+#     # Check if the pairing equations hold
+#     assert np.array_equal(pairing_lhs, pairing_rhs), "Pairing equations do not hold"
+#
+#     print("Proof verification successful")
+
+
+
+
+
+check = pairing_verification(A_1, B_2, C_1, t)
+print(check)
