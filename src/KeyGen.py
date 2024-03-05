@@ -7,13 +7,13 @@ q = 50
 
 
 def mod_mult(m1, m2):
-    return np.dot(m1, m2) % q
+    return np.remainder(np.matmul(m1, m2), q)
 
 def mod_add(m1, m2):
-    return (m1 + m2) % q
+    return np.remainder((m1 + m2), q)
 
 def mod_sub(m1, m2):
-    return (m1 - m2) % q
+    return np.remainder((m1 - m2), q)
 
 def keyGen(a, s, e):
     t = mod_mult(a, s)

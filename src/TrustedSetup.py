@@ -61,10 +61,10 @@ def getTau():
         local_tau = int(tau ** i)
         tmp = (local_tau * T(tau))
         t_a.append(a * int(tmp))
-    return tau, tTau, tau_a, tau_t, t_a, a, t
+    return tau, tTau, tau_a, tau_t, t_a, a, t, s, e
 
 
-tau, tTau, tau_A, tau_t, t_A, a, t = getTau()
+tau, tTau, tau_A, tau_t, t_A, a, t, s, e = getTau()
 # Print the results
 # print("tau: ", tau)
 # print("Ttau: ", tTau)
@@ -81,6 +81,7 @@ def hxBalancing(Ua, Va, Wa):
     # remainder should be null
     assert (Ua * Va - Wa) % T == 0, "Remainder not zero!"
     print("Ua(tau) * Va(tau) - Wa(tau) == H(T(tau)):", Ua(tau) * Va(tau) - Wa(tau) == H(tau) * T(tau))
+    print("it is: ", Ua(tau) * Va(tau) - Wa(tau))
     print("deg(T) =", T.degree)
     print("deg(H) =", H.degree)
     return H

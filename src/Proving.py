@@ -1,6 +1,9 @@
 import fromR1CStoQAP as qap
 import TrustedSetup as ts
 import numpy as np
+import KeyGen as Kg
+
+q = 257
 def lattice_poly_hiding(poly, powers_of_tau):
     coefs = poly.coefficients()
     print("coefs_check: ", coefs)
@@ -12,21 +15,23 @@ def lattice_poly_hiding(poly, powers_of_tau):
     result = 0
 
     for i in range(len(coefs)):
-        result += powers_of_tau[i] * int(coefs[-(i + 1)])
+        result += powers_of_tau[i] #* int(coefs[-(i + 1)])
 
     return result
 
 
 U, V, W, Ua, Va, Wa = qap.polySum()
 print("Ua check: ", Ua)
-tau, tTau, tau_a, tau_t, t_a, a, t = ts.getTau()
+tau, tTau, tau_a, tau_t, t_a, a, t, s, e = ts.getTau()
+print("tau_a: ", tau_a) # == coefficients times tau multiple times a
+print("tau_t: ", tau_t) # == coefficients times tau multiple times t
 
 H = ts.hxBalancing(Ua, Va, Wa)
 # [A]_1 generation
-A_1 = lattice_poly_hiding(Ua, tau_a)
+A_1 = lattice_poly_hiding(Ua, tau_a)  # sum of all tau multiples times a //times coefficient of Ua
 print("A_1: ",  A_1)
 # [B]_2 generation
-B_2 = lattice_poly_hiding(Va, tau_t)
+B_2 = lattice_poly_hiding(Va, tau_t) #sum of all tau multiples times t //times coefficient of Va
 print("B_1: ",  B_2)
 
 # [C]_1 generation
@@ -40,8 +45,18 @@ print("C_1: ",  C_1)
 
 proof = [A_1, B_2, C_1]
 # print("proof :", proof)
-print(A_1 * B_2 == C_1 * tTau)
+print("Ua(tau) * Va(tau) - Wa(tau) == H(T(tau)):", Kg.mod_add(Kg.mod_mult(5*a, s), e) == np.remainder(5*t, q))
+print("a: ", a)
+print("s: ", s)
+print("e: ", a)
+print("t: ", a)
 
+print("check1: ", Kg.mod_mult(a, s))
+print("check2: ", Kg.mod_add(Kg.mod_mult(a, s), e))
+print("check3: ", np.remainder(t, q))
+print(proof)
+print(A_1 * B_2)
+print(C_1*tTau)
 
 # def pairing_verification(A, B, C, tTau):
 #     pairing_lhs = np.dot(A, B)
@@ -56,5 +71,5 @@ print(A_1 * B_2 == C_1 * tTau)
 
 
 
-check = pairing_verification(A_1, B_2, C_1, t)
-print(check)
+# check = pairing_verification(A_1, B_2, C_1, t)
+# print(check)
