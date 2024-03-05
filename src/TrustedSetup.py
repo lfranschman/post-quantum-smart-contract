@@ -29,10 +29,11 @@ beta = np.random.randint(q)
 
 # n degree of polynomials
 A, B, C = r1.LWEToR1CS_transform()
+# assert Kg.mod_mult(A, B) == C
 n = len(A)-1
 print("n check: ", n)
 # public inputs (matrix a and vector t)
-l = 2
+#l = 2
 # private inputs = total inputs - public inputs
 m = len(A[0])
 
@@ -84,7 +85,7 @@ def hxBalancing(Ua, Va, Wa):
     print("it is: ", Ua(tau) * Va(tau) - Wa(tau))
     print("deg(T) =", T.degree)
     print("deg(H) =", H.degree)
-    return H
+    return H, T
 
 
 U, V, W, Ua, Va, Wa = qap.polySum()
