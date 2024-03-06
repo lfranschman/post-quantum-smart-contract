@@ -9,6 +9,15 @@ GF = galois.GF(order)
 n = 2
 q = 257
 
+def get_crs():
+    tau = np.random.randint(q)
+    alpha = np.random.randint(q)
+    beta = np.random.randint(q)
+    gamma = np.random.randint(q)
+    delta = np.random.randint(q)
+    return tau, alpha, beta, gamma, delta
+
+
 a_first_column = np.random.randint(q, size=(n, 1))
 a = a_first_column
 for i in range(1, n):
@@ -18,18 +27,11 @@ e = np.random.randint(3, size=(n, 1)) - 1
 
 t = Kg.keyGen(a, s, e)
 
-
-# tau value is random
-tau = np.random.randint(q)
-# alpha value is random
-alpha = np.random.randint(q)
-# beta value is random
-beta = np.random.randint(q)
-
-
 # n degree of polynomials
 A, B, C = r1.LWEToR1CS_transform()
-# assert Kg.mod_mult(A, B) == C
+
+tau, alpha, beta, gamma, delta = get_crs()
+
 n = len(A)-1
 print("n check: ", n)
 # public inputs (matrix a and vector t)

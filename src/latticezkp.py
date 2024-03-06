@@ -1,39 +1,47 @@
 import numpy as np
+import hashlib
 
-# Parameters
-q = 257
-n = 2
+def hash_to_scalar(*args):
+    data = ''.join(map(str, args)).encode('utf-8')
+    return int(hashlib.sha256(data).hexdigest(), 16)
 
-def generate_keypair():
-    A = np.random.randint(q, size=(n, n))
+def generate_key_pair():
+    n = 3
+    q = 257
+    a_first_column = np.random.randint(q, size=(n, 1))
+    A = a_first_column
+    for i in range(1, n):
+        A = np.hstack((A, np.roll(a_first_column, i)))
     s = np.random.randint(3, size=(n, 1)) - 1
     e = np.random.randint(3, size=(n, 1)) - 1
+    t = (A @ s + e) % q
 
-    t = (A.dot(s) + e) % q
+    return A, t, (s, e)
 
-    return A, t,e, s
+def hash_challenge(*args):
+    return hash_to_scalar(*args)
 
-def prove_knowledge(s):
-    # Simulate a proof by simply returning the secret vector
-    return s
+def prover(A, s, e):
+    n = len(s)
+    z = np.random.randint(0, 257, dtype=np.uint64)
+    x = (A @ s + e) % 2
+    y = (z * A + e) % 2  # Fix here: use A instead of s in y calculation
+    c = hash_challenge(A, x, y)
 
-def verify_knowledge(A, t, e, proof):
-    # Verify the knowledge by checking if A * proof is equal to t
-    result = (A.dot(proof) % q) + e
-    return np.array_equal(result, t)
+    r = (z - c * s) % 257
+
+    return c, r
+
+def verifier(A, t, c, r):
+    x = (t - c * A) % 2
+    y = (r * A + c * t) % 2
+    c_prime = hash_challenge(A, x, y)
+
+    return c == c_prime
 
 # Example usage
-A, t, e, s = generate_keypair()
-print("Matrix A:")
-print(A)
-print("Target Vector t:")
-print(t)
-print("Secret Vector s:")
-print(s)
+A, t, (s, e) = generate_key_pair()
+c, r = prover(A, s, e)
+result = verifier(A, t, c, r)
 
-proof = prove_knowledge(s)
-print("Proof:")
-print(proof)
-
-verification_result = verify_knowledge(A, t, e, proof)
-print("Verification Result:", verification_result)
+print("Verification Result:", result)
