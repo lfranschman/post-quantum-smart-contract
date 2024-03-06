@@ -94,3 +94,58 @@ U, V, W, Ua, Va, Wa = qap.polySum()
 hxBalancing(Ua, Va, Wa)
 
 
+# import random
+#
+# # Parameters
+# m = 10  # Number of constraints (adjust as needed)
+#
+# # Generate random values for Powers of Tau
+# tau = [random.random() for _ in range(2 * m - 1)]
+# alpha = random.random()
+# beta = random.random()
+#
+# # Define generator points G1 and G2
+# G1 = generate_g1()
+# G2 = generate_g2()
+#
+# # Compute Powers of Tau
+# tau_G1 = scalar_multiply(tau, G1)
+# tau_G2 = scalar_multiply(tau[:m], G2)
+# alpha_tau_G1 = scalar_multiply(tau[:m], G1, scalar=alpha)
+# beta_tau_G1 = scalar_multiply(tau[:m], G1, scalar=beta)
+# beta_G2 = scalar_multiply(G2, scalar=beta)
+#
+# # Store the Powers of Tau values for later use
+#
+# # Phase 2: Generate proving key
+# # Assuming A, B, C are the summed polynomials as mentioned in the question
+#
+# gamma = random.random()
+# delta = random.random()
+#
+# # Compute the polynomials L_i
+# L = [(beta * A[i] + alpha * B[i] + C[i]) for i in range(m)]
+#
+# # Compute L_i(tau) * G1 using linear combinations
+# L_tau_G1 = scalar_multiply(tau[:m], G1, scalar=delta**(-1), linear_combinations=L)
+#
+# # Compute proving key values
+# proving_key_values = {
+#     "alpha_beta_delta_G1": (alpha, beta, delta) * G1,
+#     "tau_G1": tau_G1,
+#     "delta_inv_L_tau_G1": delta**(-1) * L_tau_G1,
+#     "tau_Zx_G1": scalar_multiply(tau[:m - 1], Zx_tau, G1),
+#     "beta_delta_G2": (beta, delta) * G2,
+#     "tau_G2": tau_G2
+# }
+#
+# # Generate verification key
+# verification_key_values = {
+#     "alpha_G1": alpha * G1,
+#     "gamma_inv_L_tau_G1": gamma**(-1) * L_tau_G1,
+#     "beta_gamma_delta_G2": (beta, gamma, delta) * G2
+# }
+
+# Store the proving key and verification key values for later use
+
+
