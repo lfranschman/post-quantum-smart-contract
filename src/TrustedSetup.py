@@ -1,7 +1,7 @@
 import galois
 import numpy as np
 import fromLWEtoR1CS as r1
-import KeyGen as Kg
+import lwe as Kg
 import fromR1CStoQAP as qap
 
 order = 2**8 + 1

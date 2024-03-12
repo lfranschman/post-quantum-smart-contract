@@ -1,7 +1,7 @@
 import fromR1CStoQAP as qap
 import TrustedSetup as ts
 import numpy as np
-import KeyGen as Kg
+import lwe as Kg
 
 q = 257
 def lattice_poly_hiding(poly, powers_of_tau):

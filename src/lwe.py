@@ -2,7 +2,7 @@ import numpy as np
 import galois
 
 GF = galois.GF(257*257*257*257)
-n = 4
+n = 2
 q = 50
 
 
@@ -20,14 +20,47 @@ def keyGen(a, s, e):
     t = mod_add(t, e)
     return t
 
-def encrypt(a, t, m, e1, e2):
+def encrypt(a, t, m):
+    # Sample e from a small Gaussian distribution
+    std_dev = 0.1  # Adjust the standard deviation if needed
+    e1 = np.random.normal(loc=0, scale=std_dev, size=(n, 1))
+    e2 = np.random.normal(loc=0, scale=std_dev, size=(n, 1))
     r = np.random.randint(3, size=n) - 1
     u = mod_mult(r, a)
     u = mod_add(u, e1)
     v = mod_mult(r, t)
     v = mod_add(v, e2)
-    v = mod_add(v, (m*((q+1)>>1)))
+    v = mod_add(v, (m*((q+1) >> 1)))
     return u, v
+
+
+def encrypt2(self, message, public_key):
+    """
+    Encrypts a message using the public key.
+    :param message: The message to encrypt.
+    :param public_key: The public key.
+    :return: The encrypted message (ciphertext).
+    """
+    # Sample a random vector and error
+    a = np.random.randint(low=0, high=self.q, size=self.n)
+    e = np.random.normal(loc=0.0, scale=1.0)  # Assuming a Gaussian error
+
+    # Encryption: c = <a, s> + e + message mod q
+    ciphertext = (np.dot(a, public_key) + e + message) % self.q
+    return a, ciphertext
+
+
+def decrypt2(self, ciphertext, private_key):
+    """
+    Decrypts a ciphertext using the private key.
+    :param ciphertext: The ciphertext to decrypt (a, c).
+    :param private_key: The private key (s).
+    :return: The decrypted message.
+    """
+    a, c = ciphertext
+    # Decryption: message = c - <a, s> mod q
+    message = (c - np.dot(a, private_key)) % self.q
+    return message
 
 def decrypt(s, u, v):
     f1 = mod_mult(u, s)
@@ -52,9 +85,7 @@ def main():
     m = np.random.randint(2, size=1)
     print("\nOriginal Message (m):")
     print(m)
-    e1 = np.random.randint(3, size=n) - 1
-    e2 = np.random.randint(3, size=1) - 1
-    u, v = encrypt(a, t, m, e1, e2)
+    u, v = encrypt(a, t, m)
     m_to_check = decrypt(s, u, v)
 
     # Correct the comparison conditions
