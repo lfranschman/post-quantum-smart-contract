@@ -58,12 +58,8 @@ def LWEToR1CS_transform():
                 d = d + 1
                 p = p + 1
 
-    # print(C_matrix)
-
-
-
-
     return A_matrix, B_matrix, C_matrix
+
 
 def commit_witness(witness, public_key):
     # Containers for 'a' values and ciphertexts
@@ -83,20 +79,7 @@ def commit_witness(witness, public_key):
     return a_values, ciphertexts
 
 
-def homomorphic_add(enc_val1, enc_val2):
-    print("1: ", enc_val1)
-    print("2: ", enc_val2[1][0])
-    # Homomorphic addition in LWE is straightforward: add the ciphertexts
-    return int(enc_val1) + enc_val2[1][0]
-
-def construct_encrypted_evaluations(As, Bs, Cs, encrypted_witness, alpha, public_key):
-    # Using the homomorphic addition to simulate the evaluation of QAP polynomials
-    enc_A_alpha = homomorphic_add(GF(encrypted_witness[0]), lwe.encrypt2(int(As(alpha)), public_key))
-    enc_B_alpha = homomorphic_add(GF(encrypted_witness[1]), lwe.encrypt2(int(Bs(alpha)), public_key))
-    enc_C_alpha = homomorphic_add(GF(encrypted_witness[2]), lwe.encrypt2(int(Cs(alpha)), public_key))
-    return enc_A_alpha, enc_B_alpha, enc_C_alpha
-
-def construct_proof(alpha, witness, T):
+def construct_proof_poly(alpha, witness, T):
     # Evaluate A, B, C polynomials at alpha
     A, B, C, As, Bs, Cs = qap.polySum(witness)
 
@@ -115,8 +98,49 @@ def construct_proof(alpha, witness, T):
     return {'H_alpha': H_alpha, 'A_alpha': As_alpha, 'B_alpha': Bs_alpha, 'C_alpha': Cs_alpha}
 
 
+def homomorphic_add(enc_val1, enc_val2):
+    print("1: ", enc_val1)
+    print("2: ", enc_val2[1][0])
+    # Homomorphic addition in LWE is straightforward: add the ciphertexts
+    return int(enc_val1) + enc_val2[1][0]
+
+
+def construct_encrypted_evaluations(As, Bs, Cs, encrypted_witness, alpha, public_key):
+    # Using the homomorphic addition to simulate the evaluation of QAP polynomials
+    enc_A_alpha = homomorphic_add(GF(encrypted_witness[0]), lwe.encrypt2(int(As(alpha)), public_key))
+    enc_B_alpha = homomorphic_add(GF(encrypted_witness[1]), lwe.encrypt2(int(Bs(alpha)), public_key))
+    enc_C_alpha = homomorphic_add(GF(encrypted_witness[2]), lwe.encrypt2(int(Cs(alpha)), public_key))
+    return enc_A_alpha, enc_B_alpha, enc_C_alpha
+
+
+def construct_proof(secret, k, public_key):
+    # Encrypt the secret
+    _, encrypted_secret = lwe.encrypt2(secret, public_key)
+
+    # Perform a homomorphic operation (addition of k)
+    encrypted_result = homomorphic_add(encrypted_secret, k)
+
+    # The proof consists of the original encrypted secret and the result of the homomorphic operation
+    proof = {
+        'encrypted_secret': encrypted_secret,
+        'encrypted_result': encrypted_result
+    }
+    return proof
+
+
+def verify_proof(proof, k):
+    encrypted_secret = proof['encrypted_secret']
+    encrypted_result = proof['encrypted_result']
+
+    # Simulate the homomorphic addition the prover claims to have performed
+    expected_encrypted_result = homomorphic_add(encrypted_secret, k)
+
+    # Verify the expected result matches the provided result
+    return expected_encrypted_result == encrypted_result
+
 
 def main():
+
     #get the r1cs
     A, B, C = LWEToR1CS_transform()
     witness = np.array([1, 22, 38, 21, 14, 37, 19, 1, 0, 1, 1, 21, 0, 37, 0, 21, 37])
@@ -145,10 +169,9 @@ def main():
     print("witness: ", witness)
     print("encrypted witness: ", ciphertexts)
     alpha = np.random.randint(q)
-    construct_proof(alpha, GF(witness), T)
+    construct_proof_poly(alpha, GF(witness), T)
     A, B, C, As, Bs, Cs = qap.polySum(GF(witness))
-    construct_encrypted_evaluations(As, Bs, Cs, ciphertexts, alpha, public_key)
-    # proof, witness = prover()
+    enc_A_alpha, enc_B_alpha, enc_C_alpha = construct_encrypted_evaluations(As, Bs, Cs, ciphertexts, alpha, public_key)
 
 
 
