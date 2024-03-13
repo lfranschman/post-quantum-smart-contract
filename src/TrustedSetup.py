@@ -3,6 +3,7 @@ import numpy as np
 import fromLWEtoR1CS as r1
 import lwe as Kg
 import fromR1CStoQAP as qap
+from py_ecc.optimized_bn128 import multiply, G1, G2, add, pairing, neg, normalize, curve_order, final_exponentiate
 
 order = 2**8 + 1
 GF = galois.GF(order)
@@ -55,15 +56,15 @@ def getTau():
     # Powers of tau for [A] and [C] (on lattice)
     for i in range(T.degree + 1):
         local_tau = int(tau ** i)
-        tau_a.append(a * local_tau)
-        tau_t.append(t * local_tau)
+        tau_a.append(multiply(G1, local_tau))
+        tau_t.append(multiply(G2, local_tau))
 
     # Powers of tau for h(tau)t(tau)
     t_a = []
     for i in range(T.degree + 1):
         local_tau = int(tau ** i)
         tmp = (local_tau * T(tau))
-        t_a.append(a * int(tmp))
+        t_a.append(multiply(G1, int(tmp)))
     return tau, tTau, tau_a, tau_t, t_a, a, t, s, e
 
 

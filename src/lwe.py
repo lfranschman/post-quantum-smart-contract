@@ -34,7 +34,7 @@ def encrypt(a, t, m):
     return u, v
 
 
-def encrypt2(self, message, public_key):
+def encrypt2(message, public_key):
     """
     Encrypts a message using the public key.
     :param message: The message to encrypt.
@@ -42,15 +42,15 @@ def encrypt2(self, message, public_key):
     :return: The encrypted message (ciphertext).
     """
     # Sample a random vector and error
-    a = np.random.randint(low=0, high=self.q, size=self.n)
+    a = np.random.randint(low=0, high=q, size=n)
     e = np.random.normal(loc=0.0, scale=1.0)  # Assuming a Gaussian error
 
     # Encryption: c = <a, s> + e + message mod q
-    ciphertext = (np.dot(a, public_key) + e + message) % self.q
+    ciphertext = (np.dot(a, public_key) + e + message) % q
     return a, ciphertext
 
 
-def decrypt2(self, ciphertext, private_key):
+def decrypt2(ciphertext, private_key):
     """
     Decrypts a ciphertext using the private key.
     :param ciphertext: The ciphertext to decrypt (a, c).
@@ -59,7 +59,7 @@ def decrypt2(self, ciphertext, private_key):
     """
     a, c = ciphertext
     # Decryption: message = c - <a, s> mod q
-    message = (c - np.dot(a, private_key)) % self.q
+    message = (c - np.dot(a, private_key)) % q
     return message
 
 def decrypt(s, u, v):

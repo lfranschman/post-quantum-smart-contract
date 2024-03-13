@@ -1,9 +1,7 @@
 import numpy as np
 import gmpy2
 import lwe
-from Crypto.PublicKey import RSA
 from Crypto.Random import get_random_bytes
-from Crypto.Cipher import PKCS1_OAEP
 
 # Define constants used in the code
 GAMMA_D = 256  # Example value, adjust according to actual needs
@@ -78,7 +76,7 @@ def setup(crs, vrs, ssp):
 
     # β * t(s)
     # Assuming ssp_t_offset points to the coefficients of the t(s) polynomial
-    t_s_coeffs = ssp['t_s']  
+    t_s_coeffs = ssp['t_s']
     v_i_bs = (poly_evaluate(t_s_coeffs, vrs.s, GAMMA_P) * vrs.beta) % GAMMA_P
     _, encrypted_t_s = lwe.encrypt2(v_i_bs, vrs.sk)
     # Assuming crs.t can store the encrypted value directly

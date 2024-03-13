@@ -3,11 +3,11 @@ import numpy as np
 import fromLWEtoR1CS as r1
 
 
+
 print("Initializing a large field...")
-order = 2**8 + 1
+order = 257
 GF = galois.GF(order)
 print("Field initialized")
-s = GF(np.array([1, 22, 38, 21, 14, 37, 19, 1, 0, 1, 1, 21, 0, 37, 0, 21, 37]))
 
 
 # x = GF(np.array([1,2,3,4,5,6,7,8]))
@@ -45,7 +45,7 @@ def get_polys_of_matrix(matrix):
         polys.append(interpolate_column(GF(np.array(column)), nb_of_rows))
     return np.array(polys)
 
-def polySum():
+def polySum(s):
     A, B, C = r1.LWEToR1CS_transform()
     # print("Extra A check: ", A)
     ## computes all interpolated polynomials for L, R, and O
@@ -105,6 +105,8 @@ def get_polys_of_S_matrix(matrix):
     return np.array(polys)
 
 
+
+# if __name__ == "__main__":
 
 
 
