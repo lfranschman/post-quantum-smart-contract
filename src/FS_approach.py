@@ -1,30 +1,39 @@
 import numpy as np
 
+def Power2Round(r, D):
+    # This function assumes r is a numpy array
+    r0 = r % (2*D) // D
+    return r - r0 * D, r0
 
-# Define the R1CS matrices A, B, and C
-A = np.array([[2, 3], [4, 5]])
-B = np.array([[1, 2], [3, 4]])
-C = np.array([[8], [13]])
+def Decompose(r, gamma):
+    r0 = r % gamma
+    r1 = (r - r0) // gamma
+    condition = (r1 == gamma - 1) & (r0 >= gamma // 2)
+    r1[condition] = 0
+    r0[condition] -= gamma
+    return r1, r0
 
-# Parameters for LWE
-n = 2  # Dimension of LWE vectors (assuming 2 variables)
-q = 257  # Modulus for LWE
-alpha = 8  # Noise parameter
+def HighBits(r, gamma):
+    # This function assumes r is a numpy array
+    return (r + gamma // 2) // gamma
 
-# Encode R1CS equations into LWE instances
-# For simplicity, we'll encode each equation separately into LWE samples
+def LowBits(r, gamma):
+    return Decompose(r, gamma)[1]
 
-# Encode the equation Ax · Bx
-AB_equation = np.dot(A, B)  # Compute the product of matrices A and B
-AB_sample = np.random.randint(0, q, size=n)  # Generate a random LWE sample
-# Compute the right-hand side of the equation
-C_expected = np.dot(AB_equation, AB_sample) % q
+def MakeGHint(z, r, gamma):
+    # This function assumes z and r are numpy arrays
+    m = (q - 1) // gamma
+    r1 = HighBits(r, gamma)
+    z1 = HighBits(z + r, gamma)
+    return (z1 - r1) % (2*m)
 
-# Generate LWE samples
-# Create an LWE instance using the parameters and the encoded equation
-lwe_instance = LWE(n, q, alpha)
-# Generate an LWE sample based on the right-hand side of the equation
-lwe_sample = lwe_instance.sample(C_expected)
+def UseGHint(h, w1, A1z1, A2z2, c, tA1, gamma):
+    # This function assumes h, w1, A1z1, A2z2, c, and tA1 are numpy arrays
+    return (w1 - (h * A1z1 + c * A2z2 - c * tA1)) % (2*gamma)
 
-# Print the generated LWE sample
-print("Generated LWE sample:", lwe_sample)
+# Given security parameters (for example purposes, they would be set appropriately for actual use)
+q = 8380417  # Example modulus
+gamma = (q - 1) // 16  # Example value for gamma
+
+# Assuming D is defined somewhere in your code
+D = q // 16  # Example D value for Power2Round, needs to be specified correctly
