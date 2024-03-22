@@ -1,94 +1,54 @@
 import numpy as np
-import gmpy2
-import lwe
-from Crypto.Random import get_random_bytes
+from numpy.linalg import norm
 
-# Define constants used in the code
-GAMMA_D = 256  # Example value, adjust according to actual needs
-GAMMA_M = 256  # Example value, adjust according to actual needs
-GAMMA_P = 2**16  # Example prime number, adjust as needed
-CT_BYTES = 32  # Example value, adjust according to actual cryptographic details
+# Function to simulate discrete Gaussian sampling
+def discrete_gaussian_sample(mean, sigma, dimension):
+    return np.random.normal(mean, sigma, dimension).round().astype(int)
 
-class Proof:
-    def __init__(self):
-        self.h = None
-        self.hat_h = None
-        self.hat_v = None
-        self.v_w = None
-        self.b_w = None
+# Function to generate a random challenge from a challenge space C
+def sample_challenge(C):
+    return np.random.choice(C)
 
-    def clear(self):
-        # Clearing is handled automatically by Python's garbage collector
-        pass
+# Public matrices and parameters
+A1 = np.array([[2, 3], [5, 7]])
+A2 = np.array([[1, 1], [1, 1]])  # Example for A2, adjust as needed
+Bext = np.array([[1, 0], [0, 1]])  # Example for Bext, adjust as needed
 
-class CRS:
-    def __init__(self):
-        self.seed = get_random_bytes(16)  # Adjust size as needed
-        self.s = np.zeros((GAMMA_D, CT_BYTES), dtype=np.uint8)
-        self.as_ = np.zeros((GAMMA_D, CT_BYTES), dtype=np.uint8)
-        self.v = np.zeros((GAMMA_M, CT_BYTES), dtype=np.uint8)
-        self.t = np.zeros(CT_BYTES, dtype=np.uint8)
+# Secret vectors and message
+s1 = np.array([1, 2])
+s2 = np.array([3, 4])
+m = 3 # The message m
 
-    def clear(self):
-        # Clearing is handled automatically by Python's garbage collector
-        pass
+# Prover's side: Sampling y1, y2
+y1 = discrete_gaussian_sample(0, 1, 2)
+y2 = discrete_gaussian_sample(0, 1, 2)
 
+m_vector = np.array([3, 0])
+# Compute w
+w = np.dot(A1, y1) + np.dot(A2, y2)
 
-def poly_evaluate(coefficients, x, modulus):
-    """Evaluate polynomial at given point x with coefficients in a finite field defined by modulus."""
-    result = 0
-    for coeff in reversed(coefficients):
-        result = (result * x + coeff) % modulus
-    return result
+# Verifier's challenge
+C = np.array([1, -1])  # Challenge space
+c = sample_challenge(C)
 
+# Prover's response to challenge
+z1 = y1 + c * s1
+z2 = y2 + c * s2
 
-def setup(crs, vrs, ssp):
-    # Initialize the RNG with the seed from crs
-    rng = np.random.default_rng(np.frombuffer(crs.seed, dtype=np.uint32))
+# Prover constructs t_A and t_B
+t_A = A1.dot(s1) + A2.dot(s2)
+t_B = Bext.dot(s2) + m
 
-    # # Define LWE parameters
-    # lwe_n = GAMMA_D  # LWE dimension, adjust as needed
-    # lwe_q = GAMMA_P  # LWE modulus, adjust as needed
+# Verifier's verification step
+if norm(z1) <= 10 and norm(z2) <= 10:
+    # Compute w_prime
+    w_prime = A1.dot(z1) + A2.dot(z2) - c * t_A  # Adjusted t_B for challenge
 
+    print(w)
+    print(w_prime)
+    # Verification check
+    verification_passed = np.array_equal(w, w_prime)
+else:
+    verification_passed = False
 
-
-    # Sample vrs attributes
-    vrs.alpha = rng.integers(low=1, high=GAMMA_P)
-    vrs.beta = rng.integers(low=1, high=GAMMA_P)
-    vrs.s = rng.integers(low=1, high=GAMMA_P)
-
-    # Generate LWE public key as a vector of random integers within the field defined by q
-    vrs.sk = np.random.randint(low=0, high=GAMMA_P, size=GAMMA_D)
-
-    # Encrypt using LWE and update crs attributes
-    for i in range(GAMMA_D):
-        # Encrypt s_i and as_i using LWE
-        _, encrypted_s_i = lwe.encrypt2(s_i, vrs.sk)
-        _, encrypted_as_i = lwe.encrypt2(as_i, vrs.sk)
-
-        # Convert encrypted values to the required format and store in crs
-        crs.s[i] = np.array(encrypted_s_i, dtype=np.uint8)[:CT_BYTES]
-        crs.as_[i] = np.array(encrypted_as_i, dtype=np.uint8)[:CT_BYTES]
-
-        # Update s_i and as_i for the next iteration
-        s_i = (s_i * vrs.s) % GAMMA_P
-        as_i = (as_i * vrs.s) % GAMMA_P
-
-    # β * t(s)
-    # Assuming ssp_t_offset points to the coefficients of the t(s) polynomial
-    t_s_coeffs = ssp['t_s']
-    v_i_bs = (poly_evaluate(t_s_coeffs, vrs.s, GAMMA_P) * vrs.beta) % GAMMA_P
-    _, encrypted_t_s = lwe.encrypt2(v_i_bs, vrs.sk)
-    # Assuming crs.t can store the encrypted value directly
-    crs.t = encrypted_t_s
-
-    # β * v_i for each i
-    for i in range(1, GAMMA_M):
-        # Assuming ssp_v_offset function or mapping exists that gives the coefficients for v_i polynomials
-        v_i_coeffs = ssp[f'v_{i}']  # Adjust based on your data structure
-        v_i_bs = (poly_evaluate(v_i_coeffs, vrs.s, GAMMA_P) * vrs.beta) % GAMMA_P
-        _, encrypted_v_i = lwe.encrypt2(v_i_bs, vrs.sk)
-        # Store encrypted v_i in crs.v at the appropriate index
-        crs.v[i - 1] = encrypted_v_i
-
-
+print("Verification passed:", verification_passed)

@@ -3,7 +3,7 @@ import galois
 
 GF = galois.GF(257*257*257*257)
 n = 2
-q = 50
+q = 257
 
 
 def mod_mult(m1, m2):
