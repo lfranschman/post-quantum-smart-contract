@@ -190,7 +190,7 @@ def verify_proof(proof):
 
     # The proof is valid if the encrypted left side is close enough to the encrypted right side, considering the encryption noise
     # Adjust the comparison as per your encryption scheme's noise characteristics
-    return left_side_encrypted - right_side_encrypted < .2
+    return left_side_encrypted - right_side_encrypted < .1
 
 
 def main():
