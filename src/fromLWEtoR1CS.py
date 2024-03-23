@@ -146,8 +146,9 @@ def construct_proof(alpha, pk, witness, T):
     Hcoefs = H.coefficients()
     H1d = np.poly1d(Hcoefs)
 
-    c_0 = add(add(mul(pk, u), e_1), mul(delta, As1d))
-    c_1 = add(add(mul(pk, u), e_1), mul(delta, Bs1d))
+    comb_AB = mul(As1d, Bs1d)
+    # c_0 = add(add(mul(pk, u), e_1), mul(delta, As1d))
+    c_1 = add(add(mul(pk, u), e_1), mul(delta, comb_AB))
     c_2 = add(add(mul(pk, u), e_1), mul(delta, Cs1d))
     c_3 = add(add(mul(pk, u), e_1), mul(delta, T1d))
     c_4 = add(add(mul(pk, u), e_1), mul(delta, H1d))
@@ -156,17 +157,17 @@ def construct_proof(alpha, pk, witness, T):
 
 
     # QAP relation check at alpha
-    left_side = np.sum(As_alpha * Bs_alpha) - np.sum(Cs_alpha)
+    left_side = As_alpha * Bs_alpha - Cs_alpha
     right_side = H_alpha * T(alpha)
     assert left_side == right_side, f"QAP relation does not hold: {left_side} != {right_side}"
     print("it passed!!")
 
-    left_side_encrypted = np.sum(c_0(alpha) * c_1(alpha)) - np.sum(c_2(alpha))
+    left_side_encrypted = c_1(alpha) - c_2(alpha)
     right_side_encrypted = c_3(alpha) * c_4(alpha)
     assert (left_side_encrypted - right_side_encrypted) < 1.1 , f"QAP relation does not hold: {left_side_encrypted} != {right_side_encrypted}"
     print("it passed!!")
 
-    return {'enc_H_alpha': c_4(alpha), 'enc_T_alpha': c_3(alpha),  'enc_A_alpha': c_0(alpha), 'enc_B_alpha': c_1(alpha), 'enc_C_alpha': c_2(alpha)}
+    return {'enc_H_alpha': c_4(alpha), 'enc_T_alpha': c_3(alpha),  'enc_AB_alpha': c_1(alpha), 'enc_C_alpha': c_2(alpha)}
 
 
 
@@ -174,8 +175,7 @@ def construct_proof(alpha, pk, witness, T):
 
 def verify_proof(proof):
     # Extract the encrypted evaluations from the proof
-    enc_A_alpha = proof['enc_A_alpha']
-    enc_B_alpha = proof['enc_B_alpha']
+    enc_AB_alpha = proof['enc_AB_alpha']
     enc_C_alpha = proof['enc_C_alpha']
     enc_T_alpha = proof['enc_T_alpha']
     enc_H_alpha = proof['enc_H_alpha']
@@ -183,7 +183,7 @@ def verify_proof(proof):
     # print(enc_A_alpha)
     # print(enc_B_alpha)
     # print(enc_C_alpha)
-    left_side_encrypted = enc_A_alpha * enc_B_alpha - enc_C_alpha
+    left_side_encrypted = enc_AB_alpha - enc_C_alpha
     right_side_encrypted = enc_T_alpha * enc_H_alpha
     # print(enc_left_side)
     # print(enc_right_side)
