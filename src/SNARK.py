@@ -9,6 +9,7 @@ def discrete_gaussian_sample(mean, sigma, dimension):
 def sample_challenge(C):
     return np.random.choice(C)
 
+
 # Public matrices and parameters
 A1 = np.array([[2, 3], [5, 7]])
 A2 = np.array([[1, 1], [1, 1]])  # Example for A2, adjust as needed

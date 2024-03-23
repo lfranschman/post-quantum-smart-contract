@@ -1,10 +1,10 @@
 import numpy as np
 import galois
 
-GF = galois.GF(257*257*257*257)
 n = 2
-q = 257
+q = 887
 
+GF = galois.GF(q)
 
 def mod_mult(m1, m2):
     return np.remainder(np.matmul(m1, m2), q)
