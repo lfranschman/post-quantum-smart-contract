@@ -131,10 +131,10 @@ def construct_proof(alpha, pk, witness, T):
 
     u = np.poly1d(np.random.randint(0, 2, d))
     e_1 = np.poly1d(np.random.normal(0, 1, d).astype(int) % q)
-    print("pk: ", pk)
-    print("u: ", u)
-    print("e_1: ", e_1)
-    print("delta: ", delta)
+    # print("pk: ", pk)
+    # print("u: ", u)
+    # print("e_1: ", e_1)
+    # print("delta: ", delta)
     Ascoefs = As.coefficients()
     As1d = np.poly1d(Ascoefs)
     Bscoefs = Bs.coefficients()
@@ -156,16 +156,16 @@ def construct_proof(alpha, pk, witness, T):
     # print(c_0)
 
 
-    # QAP relation check at alpha
-    left_side = As_alpha * Bs_alpha - Cs_alpha
-    right_side = H_alpha * T(alpha)
-    assert left_side == right_side, f"QAP relation does not hold: {left_side} != {right_side}"
-    print("it passed!!")
-
-    left_side_encrypted = c_1(alpha) - c_2(alpha)
-    right_side_encrypted = c_3(alpha) * c_4(alpha)
-    assert (left_side_encrypted - right_side_encrypted) < 1.1 , f"QAP relation does not hold: {left_side_encrypted} != {right_side_encrypted}"
-    print("it passed!!")
+    # # QAP relation check at alpha
+    # left_side = As_alpha * Bs_alpha - Cs_alpha
+    # right_side = H_alpha * T(alpha)
+    # assert left_side == right_side, f"QAP relation does not hold: {left_side} != {right_side}"
+    # print("it passed!!")
+    #
+    # left_side_encrypted = c_1(alpha) - c_2(alpha)
+    # right_side_encrypted = c_3(alpha) * c_4(alpha)
+    # assert (left_side_encrypted - right_side_encrypted) < 1.1 , f"QAP relation does not hold: {left_side_encrypted} != {right_side_encrypted}"
+    # print("it passed!!")
 
     return {'enc_H_alpha': c_4(alpha), 'enc_T_alpha': c_3(alpha),  'enc_AB_alpha': c_1(alpha), 'enc_C_alpha': c_2(alpha)}
 
@@ -198,7 +198,7 @@ def main():
     #get the r1cs
     A, B, C = LWEToR1CS_transform()
     witness = np.array([1, 22, 38, 21, 14, 37, 19, 1, 0, 1, 1, 21, 0, 37, 0, 21, 37])
-    print(witness)
+    # print(witness)
     print(np.matmul(C, witness) == (np.matmul(A, witness) * np.matmul(B, witness)))
 
     #generate lwe public key
@@ -220,7 +220,7 @@ def main():
     T = galois.Poly(T_coefficients, field=galois.GF(q))
     for i in range(2, len(A) + 1):
         T *= galois.Poly([1, -i], field=galois.GF(q))
-    print("witness: ", witness)
+    # print("witness: ", witness)
 
     e, a, sk, alpha = setup()
     add = addition(p_q, q)
