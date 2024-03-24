@@ -2,7 +2,7 @@ import numpy as np
 import galois
 
 n = 2
-q = 887
+q = 2741
 
 GF = galois.GF(q)
 
@@ -18,7 +18,7 @@ def mod_sub(m1, m2):
 def keyGen(a, s, e):
     t = mod_mult(a, s)
     t = mod_add(t, e)
-    return t
+    return (a, t)
 
 def encrypt(a, t, m):
     # Sample e from a small Gaussian distribution
@@ -30,7 +30,7 @@ def encrypt(a, t, m):
     u = mod_add(u, e1)
     v = mod_mult(r, t)
     v = mod_add(v, e2)
-    v = mod_add(v, (m*((q+1) >> 1)))
+    v = mod_add(v, (int(m)*((q+1) >> 1)))
     return u, v
 
 
@@ -42,22 +42,22 @@ def encrypt2(message, public_key):
     :return: The encrypted message (ciphertext).
     """
     # Sample a random vector and error
-    a = np.random.randint(low=0, high=q, size=n)
+    a = public_key[0]
     e = np.random.normal(loc=0.0, scale=1.0)  # Assuming a Gaussian error
 
     # Encryption: c = <a, s> + e + message mod q
-    ciphertext = (np.dot(a, public_key) + e + message) % q
+    ciphertext = (np.dot(a, public_key[1]) + e + int(message)) % q
     return a, ciphertext
 
 
-def decrypt2(ciphertext, private_key):
+def decrypt2(ciphertext, a, private_key):
     """
     Decrypts a ciphertext using the private key.
     :param ciphertext: The ciphertext to decrypt (a, c).
     :param private_key: The private key (s).
     :return: The decrypted message.
     """
-    a, c = ciphertext
+    c = ciphertext
     # Decryption: message = c - <a, s> mod q
     message = (c - np.dot(a, private_key)) % q
     return message

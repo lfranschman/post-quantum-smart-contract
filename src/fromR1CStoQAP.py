@@ -5,7 +5,7 @@ import fromLWEtoR1CS as r1
 
 
 print("Initializing a large field...")
-order = 887
+order = 2741
 GF = galois.GF(order)
 print("Field initialized")
 
