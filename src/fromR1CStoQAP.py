@@ -5,10 +5,10 @@ import fromLWEtoR1CS as r1
 
 
 print("Initializing a large field...")
-order = 11
+order = 257
 GF = galois.GF(order)
 q = 2741
-t = 11
+t = 257
 d = 12
 delta = q // t
 # Polynomial modulus
@@ -16,6 +16,7 @@ p_q = np.poly1d([1] + ([0] * (d - 1)) + [1])
 print("Field initialized")
 # s = GF(np.array([1, 22, 38, 21, 14, 37, 19, 1, 0, 1, 1, 21, 0, 37, 0, 21, 37]))
 s = GF(np.array([1, 2, 4, 1, 2, 3, 2, 1, 0, 1, 1, 1, 0, 3, 0, 1, 3]))
+# s = GF(np.array([1, 2, 4, 1, 2, 3, 2, 1, 0, 1, 1, 1, 0, 3, 0, 1, 3]))
 # s = GF(np.array([1, 6, 2, 1, 2, 3, 7, 0, 0, 1, 1, 2, 0, 3, 0, 1, 8]))
 # x = GF(np.array([1,2,3,4,5,6,7,8]))
 
@@ -193,16 +194,23 @@ if __name__ == "__main__":
     H = (Ua * Va - Wa) // T
 
     print("ok lets see: ", (Ua * Va - Wa) % T)
-    print(Ua)
-    print(Va)
-    print(Wa)
-    print(H)
-    print(T)
-    alpha = np.random.randint(0, t, 1)
+    print("Ua: ", Ua)
+    print("Va: ", Va)
+    print("Wa: ", Wa)
+    print("H: ", H)
+    print("T: ", T)
+    alpha = np.random.randint(0, t, 1)[0]
     print(alpha)
-    lhs = (Ua(alpha) * Va(alpha) - Wa(alpha))
-    rhs = H(alpha) * T(alpha)
-    print(lhs == rhs)
+    print("Uaalpha: ", Ua(alpha))
+    print("Vaalpha: ", Va(alpha))
+    print("Waalpha: ", Wa(alpha))
+    print("Halpha: ", H(alpha))
+    print("Talpha: ", T(alpha))
+    left = (Ua(alpha) * Va(alpha)) - Wa(alpha)
+    right = H(alpha) * T(alpha)
+    print("left: ", left)
+    print("right: ", right)
+    print("res1: ", left == right)
 
     a, b, c, t2, h = to_poly1d(Ua, Va, Wa, T, H)
     a_alpha = mod_horner(a, alpha, t)
@@ -210,7 +218,16 @@ if __name__ == "__main__":
     c_alpha = mod_horner(c, alpha, t)
     t_alpha = mod_horner(t2, alpha, t)
     h_alpha = mod_horner(h, alpha, t)
-    print(a_alpha * b_alpha - c_alpha == t_alpha * h_alpha)
+    print("a_alpha: ", a_alpha)
+    print("b_alpha: ", b_alpha)
+    print("c_alpha: ", c_alpha)
+    print("t_alpha: ", t_alpha)
+    print("h_alpha: ", h_alpha)
+    left2 = (a_alpha * b_alpha - c_alpha) % t
+    right2 = (t_alpha * h_alpha) % t
+    print("left2: ", left2)
+    print("right2: ", right2)
+    print("res2: ", left2 == right2)
 
     add = addition(p_q, q)
     mul = multiplication(p_q, q)
@@ -253,7 +270,18 @@ if __name__ == "__main__":
     cdec_alpha = mod_horner(m_prime3, alpha, t)
     tdec_alpha = mod_horner(m_prime4, alpha, t)
     hdec_alpha = mod_horner(m_prime5, alpha, t)
-    print(adec_alpha * bdec_alpha - cdec_alpha == tdec_alpha * hdec_alpha)
+    print("adec_alpha: ", adec_alpha)
+    print("bdec_alpha: ", bdec_alpha)
+    print("cdec_alpha: ", cdec_alpha)
+    print("tdec_alpha: ", tdec_alpha)
+    print("hdec_alpha: ", hdec_alpha)
+
+    left3 = (a_alpha * b_alpha - c_alpha) % t
+    right3 = (t_alpha * h_alpha) % t
+
+    print("left3: ", left3)
+    print("right3: ", right3)
+    print("res3: ", left3 == right3)
 
 
 
