@@ -75,8 +75,8 @@ def get_polys_of_matrix(matrix):
 
 def polySum():
     A, B, C = r1.LWEToR1CS_transform()
-    witness = np.array([1, 2, 4, 1, 2, 3, 2, 1, 0, 1, 1, 1, 0, 3, 0, 1, 3])
-    print(np.matmul(C, witness) == (np.matmul(A, witness) * np.matmul(B, witness)))
+    # witness = np.array([1, 2, 4, 1, 2, 3, 2, 1, 0, 1, 1, 1, 0, 3, 0, 1, 3])
+    print(np.matmul(C, np.array(s)) == (np.matmul(A, np.array(s)) * np.matmul(B, np.array(s))))
 
     # print("Extra A check: ", A)
     ## computes all interpolated polynomials for L, R, and O
