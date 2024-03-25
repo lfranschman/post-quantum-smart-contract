@@ -198,7 +198,7 @@ if __name__ == "__main__":
     print(Wa)
     print(H)
     print(T)
-    alpha = 6
+    alpha = np.random.randint(0, t, 1)
     print(alpha)
     lhs = (Ua(alpha) * Va(alpha) - Wa(alpha))
     rhs = H(alpha) * T(alpha)
