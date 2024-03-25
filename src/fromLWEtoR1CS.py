@@ -5,16 +5,19 @@ import fromR1CStoQAP as qap
 import galois
 from numpy.testing import assert_array_equal
 
-order = 2741
+order = 257
 GF = galois.GF(order)
 
 np.set_printoptions(threshold=sys.maxsize)
 
 n = 2
-q = 2741
+t = 17
+# Highest coefficient power used
 d = 8
-t = 1900
+# Coefficient modulus
+q = 877
 delta = q // t
+# Polynomial modulus
 p_q = np.poly1d([1] + ([0] * (d - 1)) + [1])
 # a * s + e = t
 
@@ -109,7 +112,7 @@ def setup():
     e = np.poly1d(np.random.normal(0, 2, d).astype(int) % q)
     a = np.poly1d(np.random.randint(0, q, d) % q)
     vk = np.poly1d(np.random.randint(0, 2, d))
-    alpha = np.random.randint(q)
+    alpha = np.random.randint(t)
     return e, a, vk, alpha
 
 def mod_horner(poly, x, modulus):
@@ -118,9 +121,10 @@ def mod_horner(poly, x, modulus):
         result = (result * x + coefficient) % modulus
     return result
 
-def construct_proof(alpha, pk, vk, public_key, witness, T):
+def construct_proof(alpha):
     # Evaluate A, B, C polynomials at alpha
-    A, B, C, As, Bs, Cs = qap.polySum(witness)
+    print("alpha: ", alpha)
+    A, B, C, As, Bs, Cs = qap.polySum()
     # print("U: ", A)
     # print("V: ", B)
     # print("W: ", C)
@@ -128,21 +132,30 @@ def construct_proof(alpha, pk, vk, public_key, witness, T):
     # print("Ua: ", As)
     # print("Va: ", Bs)
     # print("Wa: ", Cs)
-    As_alpha = As(alpha)
-    Bs_alpha = Bs(alpha)
-    Cs_alpha = Cs(alpha)
-
-
+    T_coefficients = [1]
+    T = galois.Poly(T_coefficients, field=galois.GF(order))
+    for i in range(2, len(A) + 1):
+        T *= galois.Poly([1, -i], field=galois.GF(order))
     # Construct the solution polynomial H(x) from the witness and evaluate it at alpha
     H = (As * Bs - Cs) // T
-    H_alpha = H(alpha)
+    # H_alpha = H(alpha)
+    left_side = As(alpha) * Bs(alpha) - Cs(alpha)
+    right_side = H(alpha) * T(alpha)
+    print(As)
+    print(Bs)
+    print(Cs)
+    print(H)
+    print(T)
+    print(left_side)
+    print(right_side)
+    return left_side == right_side
 
-    add = addition(p_q, q)
-    mul = multiplication(p_q, q)
-
-    u = np.poly1d(np.random.randint(0, 2, d))
-    e_1 = np.poly1d(np.random.normal(0, 1, d).astype(int) % q)
-    e_2 = np.poly1d(np.random.normal(0, 1, d).astype(int) % q)
+    # add = addition(p_q, q)
+    # mul = multiplication(p_q, q)
+    # #
+    # u = np.poly1d(np.random.randint(0, 2, d))
+    # e_1 = np.poly1d(np.random.normal(0, 1, d).astype(int) % q)
+    # e_2 = np.poly1d(np.random.normal(0, 1, d).astype(int) % q)
 
     # print("pk: ", pk)
     # print("u: ", u)
@@ -184,18 +197,18 @@ def construct_proof(alpha, pk, vk, public_key, witness, T):
     # print("H_alpha: ", H(alpha))
     # print("H1d_alpha: ", mod_horner(H1d, alpha, q))
     #
-    # m = np.poly1d((np.array([100, 3, 5, 6, 8, 9, 6, 4])) % t)
+    # m = np.poly1d((np.array([4, 3, 6, 7, 7, 8, 3, 2])))
     # print("m: ", m)
-    # # comb_AB = mul(As1d, Bs1d)
+    # # # comb_AB = mul(As1d, Bs1d)
     # e_enc = add(mul(pk[1], u), e_2)
     # A_enc = add(add(mul(pk[0], u), e_1), mul(delta, m))
     # B_enc = add(add(mul(pk[0], u), e_1), mul(delta, Bs1d))
     # C_enc = add(add(mul(pk[0], u), e_1), mul(delta, Cs1d))
     # T_enc = add(add(mul(pk[0], u), e_1), mul(delta, T1d))
     # H_enc = add(add(mul(pk[0], u), e_1), mul(delta, H1d))
-    #
-    # A_prime = np.poly1d(np.round(add(mul(e_enc, vk), A_enc) * t / q) % t)
-    # print("midcheck: ", A_prime)
+
+    # A_prime = np.poly1d(np.round(add(mul(e_enc, vk), A_enc) * t / q))
+    # print("primeCheck: ", A_prime)
     # print("A_primeeeeee: ", A_prime)
     #
     # As1d_alpha = mod_horner(As1d, alpha, q)
@@ -217,64 +230,66 @@ def construct_proof(alpha, pk, vk, public_key, witness, T):
     # right_side = H_alpha * T(alpha)
     # assert left_side == right_side, f"QAP relation does not hold: {left_side} != {right_side}"
     # print("it passed!!")
-
+    #
     # left_side = (As1d_alpha * Bs1d_alpha - Cs1d_alpha) % q
     # right_side = (T1d_alpha * H1d_alpha) % q
     # assert left_side == right_side, f"QAP relation does not hold: {left_side} != {right_side}"
     # print("it passed!!")
-
-    # left_side_encrypted = enc_As1d_alpha * enc_Bs1d_alpha - enc_Cs1d_alpha
-    # right_side_encrypted = enc_T1d_alpha * enc_H1d_alpha
-    # assert abs(left_side_encrypted - right_side_encrypted) < .1 , f"QAP relation does not hold: {left_side_encrypted} != {right_side_encrypted}"
-    # print("it passed!!")
-
-    ab_comb = As(alpha) * Bs(alpha)
-    print(ab_comb - Cs(alpha))
-    print(T(alpha))
-    print(H(alpha))
-
-    print(public_key)
-    c1 = lwe.encrypt(public_key[0], public_key[1], ab_comb)
-    c2 = lwe.encrypt(public_key[0], public_key[1], -Cs(alpha))
-    ccomb = (c1[0] + c2[0], c1[1] + c2[1])
-    c3 = lwe.encrypt(public_key[0], public_key[1], T(alpha))
-    c4 = lwe.encrypt(public_key[0], public_key[1], H(alpha))
-
-    return {'enc_H': c4, 'enc_T': c3,  'enc_left': ccomb}
+    #
+    # # left_side_encrypted = enc_As1d_alpha * enc_Bs1d_alpha - enc_Cs1d_alpha
+    # # right_side_encrypted = enc_T1d_alpha * enc_H1d_alpha
+    # # assert abs(left_side_encrypted - right_side_encrypted) < .1 , f"QAP relation does not hold: {left_side_encrypted} != {right_side_encrypted}"
+    # # print("it passed!!")
+    # #
+    # # ab_comb = As(alpha) * Bs(alpha)
+    # # print(ab_comb - Cs(alpha))
+    # # print(T(alpha))
+    # # print(H(alpha))
+    # #
+    # # print(public_key)
+    # # e_2 = np.poly1d(np.random.normal(0, 2, d).astype(int) % q)
+    #
+    # return {'enc_e': e_enc, 'enc_H': H_enc, 'enc_T': T_enc,  'enc_A': A_enc, 'enc_B': B_enc, 'enc_C': C_enc}
 
 
 
 
 
-def verify_proof(proof, gate_checks, vk, s, a, alpha):
+def verify_proof(proof, gate_checks, vk, s, a, alpha, public_key):
     # if np.all(gate_checks) == False:
     #     return False
     # Extract the encrypted evaluations from the proof
-    # enc_e = proof['enc_e']
-    enc_left = proof['enc_left']
-    # enc_B = proof['enc_B']
-    # enc_C= proof['enc_C']
+    enc_e = proof['enc_e']
+    enc_A = proof['enc_A']
+    enc_B = proof['enc_B']
+    enc_C = proof['enc_C']
     enc_T = proof['enc_T']
     enc_H = proof['enc_H']
 
     add = addition(p_q, q)
     mul = multiplication(p_q, q)
 
-    u1, v1 = enc_left
-    u2, v2 = enc_T
-    u3, v3 = enc_H
+    # u1, v1 = enc_left
+    # u2, v2 = enc_T
+    # u3, v3 = enc_H
     # A_prime = np.poly1d(np.round(add(mul(enc_e, vk), enc_A) * t / q) % t)
     # print("A_prime: ", A_prime)
-    p1 = lwe.decrypt(s, u1,  v1)
-    # p2 = lwe.decrypt2(enc_C, s)
-    p2 = lwe.decrypt(s, u2, v2)
-    p3 = lwe.decrypt(s, u3, v2)
-    print("p1: ", p1)
-    print("p2: ", p2)
-    print("p3: ", p3)
+    A = np.poly1d(np.round(add(mul(enc_e, vk), enc_A) * t / q) % t)
+    #lwe.decrypt(s, u1,  v1)
+    B =  np.poly1d(np.round(add(mul(enc_e, vk), enc_B) * t / q) % t)
+    #lwe.decrypt(s, u2, v2)
+    C = np.poly1d(np.round(add(mul(enc_e, vk), enc_C) * t / q) % t)
+    T = np.poly1d(np.round(add(mul(enc_e, vk), enc_T) * t / q) % t)
+    H = np.poly1d(np.round(add(mul(enc_e, vk), enc_H) * t / q) % t)
+    #lwe.decrypt(s, u3, v2)
+    print("A: ", A)
+    print("B: ", B)
+    print("C: ", C)
+    print("T: ", T)
+    print("H: ", H)
 
-    left_side = p1
-    right_side = p2 * p3
+    # left_side = p1
+    # right_side = p2 * p3
     # assert left_side == right_side, f"QAP relation does not hold: {left_side} != {right_side}"
     # print("it passed!!")
     # print(enc_A_alpha)
@@ -286,8 +301,10 @@ def verify_proof(proof, gate_checks, vk, s, a, alpha):
     # # print(enc_right_side)
     # qap_check = left_side_encrypted - right_side_encrypted < .1
 
+    add = addition(p_q, q)
+    mul = multiplication(p_q, q)
     # The proof is valid if the encrypted left side is close enough to the encrypted right side, considering the encryption noise
-    return left_side == right_side
+    return A(alpha) * B(alpha) - C(alpha) == T(alpha) * H(alpha)
 
 
 def main():
@@ -301,25 +318,29 @@ def main():
     print(np.matmul(C, witness) == (np.matmul(A, witness) * np.matmul(B, witness)))
     gate_checks = np.matmul(C, witness) == (np.matmul(A, witness) * np.matmul(B, witness))
     #generate lwe public key
-    a_first_column = np.random.randint(q, size=(n, 1))
-    a = a_first_column
-    for i in range(1, n):
-        a = np.hstack((a, np.roll(a_first_column, i)))
-    s = np.random.randint(3, size=(n, 1)) - 1
-    e = np.random.randint(3, size=(n, 1)) - 1
-    public_key = lwe.keyGen(a, s, e)
-    print(public_key)
+    # a_first_column = np.random.randint(q, size=(n, 1))
+    # m = 2
+    # a = a_first_column
+    # for i in range(1, m):
+    #     a = np.hstack((a, np.roll(a_first_column, i)))
+    # s = np.random.randint(3, size=(m, 1)) - 1
+    # e = np.random.randint(3, size=(m, 1)) - 1
+    # public_key = lwe.keyGen(a, s, e)
+    # print(public_key)
     #get the QAP from the R1CS
     A_polys = qap.get_polys_of_matrix(A)
     B_polys = qap.get_polys_of_matrix(B)
     C_polys = qap.get_polys_of_matrix(C)
 
-    #generate the target polynomial
-    T_coefficients = [1]
-    T = galois.Poly(T_coefficients, field=galois.GF(q))
-    for i in range(2, len(A) + 1):
-        T *= galois.Poly([1, -i], field=galois.GF(q))
+    # #generate the target polynomial
+    # T_coefficients = [1]
+    # T = galois.Poly(T_coefficients, field=galois.GF(order))
+    # for i in range(2, len(A) + 1):
+    #     T *= galois.Poly([1, -i], field=galois.GF(order))
     # print("witness: ", witness)
+
+
+
 
     e, a, vk, alpha = setup()
     add = addition(p_q, q)
@@ -329,10 +350,11 @@ def main():
     pk = (pk0, pk1)
     extr_e = add(mul(pk[1], vk), pk[0])
     assert_array_equal(extr_e, e)
-    proof = construct_proof(alpha, pk, vk, public_key, GF(witness), T)
-    new_gate_checks = np.append(gate_checks, np.append(gate_checks, gate_checks))
-    verifiction = verify_proof(proof, new_gate_checks, vk, s, a, alpha)
-    print(verifiction)
+    proof = construct_proof(alpha)
+    print(proof)
+    # new_gate_checks = np.append(gate_checks, np.append(gate_checks, gate_checks))
+    # verifiction = verify_proof(proof, new_gate_checks, vk, a, alpha)
+    # print(verifiction)
 
 
 

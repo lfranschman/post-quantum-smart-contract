@@ -2,7 +2,7 @@ import numpy as np
 import galois
 
 n = 2
-q = 2741
+q = 6047
 
 GF = galois.GF(q)
 
@@ -65,6 +65,8 @@ def decrypt2(ciphertext, a, private_key):
 def decrypt(s, u, v):
     f1 = mod_mult(u, s)
     m_with_error = mod_sub(v, f1)
+    print("m_with_error: ", m_with_error)
+    return np.round(m_with_error[0])
     if (m_with_error[0] > (q//4)) and (m_with_error[0] < (3*(q//4))):
         return 1
     else:
