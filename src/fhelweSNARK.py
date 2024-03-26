@@ -170,6 +170,7 @@ def prover(pk, u, e1, e2, alpha):
     c1 = add(add(mul(pk[0], u), e1), mul(delta, lhs))
     print("c1 check:", c1)
     c2 = add(add(mul(pk[0], u), e1), mul(delta, rhs))
+    print("c2 check:", c2)
     e_enc = add(mul(pk[1], u), e2)
 
     return e_enc, c1, c2
@@ -179,17 +180,19 @@ def verifier(sk, proof):
     start = time.time()
 
     e_enc, c_0, c_1 = proof
-
-    m_prime1 = np.poly1d(np.round(add(mul(e_enc, sk), c_0) * t / q) % t)
-    print("m_prime1: ", m_prime1)
-
-    m_prime2 = np.poly1d(np.round(add(mul(e_enc, sk), c_1) * t / q) % t)
-    print("m_prime2: ", m_prime2)
-    print("res3: ", m_prime1 == m_prime2)
+    check = add(c_0, -c_1)
+    print("just a check: ", int(check.coefficients[0]))
+    #
+    # m_prime1 = np.poly1d(np.round(add(mul(e_enc, sk), c_0) * t / q) % t)
+    # print("m_prime1: ", m_prime1)
+    #
+    # m_prime2 = np.poly1d(np.round(add(mul(e_enc, sk), c_1) * t / q) % t)
+    # print("m_prime2: ", m_prime2)
+    # print("res3: ", m_prime1 == m_prime2)
     end = time.time()
     print("verification time: ", end - start)
 
-    return m_prime1 == m_prime2
+    return int(check.coefficients[0]) == 0
 
 
 if __name__ == "__main__":
