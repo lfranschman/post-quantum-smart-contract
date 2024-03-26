@@ -2,13 +2,15 @@ import galois
 import numpy as np
 import fromLWEtoR1CS as r1
 import fromR1CStoQAP as qap
+import sys
+import time
 
 
 order = 73
 GF = galois.GF(order)
 q = 8929
 t = 73
-d = 15
+d = 25
 delta = q // t
 # Polynomial modulus
 p_q = np.poly1d([1] + ([0] * (d - 1)) + [1])
@@ -114,25 +116,26 @@ def prover(pk, u, e1, e2, alpha):
     A, B, C = r1.LWEToR1CS_transform()
 
     U, V, W, Ua, Va, Wa = qap.polySum()
+
+    #vanishing polynomial
     T = galois.Poly([1, order - 1], field=GF)
-    ## Then multiply by the other values: (x-2)(x-3)...(x-7)
     for i in range(2, len(A) + 1):
         T = T * galois.Poly([1, order - i], field=GF)
 
     H = (Ua * Va - Wa) // T
 
-    print("ok lets see: ", (Ua * Va - Wa) % T)
-    print("Ua: ", Ua)
-    print("Va: ", Va)
-    print("Wa: ", Wa)
-    print("H: ", H)
-    print("T: ", T)
-
-    print("Uaalpha: ", Ua(alpha))
-    print("Vaalpha: ", Va(alpha))
-    print("Waalpha: ", Wa(alpha))
-    print("Halpha: ", H(alpha))
-    print("Talpha: ", T(alpha))
+    print("check if remainder is zero: ", (Ua * Va - Wa) % T)
+    # print("Ua: ", Ua)
+    # print("Va: ", Va)
+    # print("Wa: ", Wa)
+    # print("H: ", H)
+    # print("T: ", T)
+    #
+    # print("Uaalpha: ", Ua(alpha))
+    # print("Vaalpha: ", Va(alpha))
+    # print("Waalpha: ", Wa(alpha))
+    # print("Halpha: ", H(alpha))
+    # print("Talpha: ", T(alpha))
     left = (Ua(alpha) * Va(alpha)) - Wa(alpha)
     right = H(alpha) * T(alpha)
     print("left: ", left)
@@ -140,11 +143,11 @@ def prover(pk, u, e1, e2, alpha):
     print("res1: ", left == right)
 
     a, b, c, t2, h = to_poly1d(Ua, Va, Wa, T, H, alpha)
-    print("a: ", a)
-    print("b: ", b)
-    print("c: ", c)
-    print("t2: ", t2)
-    print("h: ", h)
+    # print("a: ", a)
+    # print("b: ", b)
+    # print("c: ", c)
+    # print("t2: ", t2)
+    # print("h: ", h)
     a_alpha = mod_horner(a, alpha, t)
     b_alpha = mod_horner(b, alpha, t)
     c_alpha = mod_horner(c, alpha, t)
@@ -161,47 +164,33 @@ def prover(pk, u, e1, e2, alpha):
     print("right2: ", right2)
     print("res2: ", left2 == right2)
 
-    e_enc = add(mul(pk[1], u), e2)
-    c0 = add(add(mul(pk[0], u), e1), mul(delta, a))
-    c1 = add(add(mul(pk[0], u), e1), mul(delta, b))
-    c2 = add(add(mul(pk[0], u), e1), mul(delta, c))
-    c3 = add(add(mul(pk[0], u), e1), mul(delta, t2))
-    c4 = add(add(mul(pk[0], u), e1), mul(delta, h))
+    lhs = (a_alpha * b_alpha - c_alpha) % t
+    rhs = (t_alpha * h_alpha) % t
 
-    return e_enc, c0, c1, c2, c3, c4
+    c1 = add(add(mul(pk[0], u), e1), mul(delta, lhs))
+    print("c1 check:", c1)
+    c2 = add(add(mul(pk[0], u), e1), mul(delta, rhs))
+    e_enc = add(mul(pk[1], u), e2)
+
+    return e_enc, c1, c2
+
 
 def verifier(sk, proof):
-    e_enc, c_0, c_1, c_2, c_3, c_4 = proof
-    m_prime1 = np.poly1d(np.round(add(mul(e_enc, sk), c_0) * t / q) % t)
+    start = time.time()
 
+    e_enc, c_0, c_1 = proof
+
+    m_prime1 = np.poly1d(np.round(add(mul(e_enc, sk), c_0) * t / q) % t)
     print("m_prime1: ", m_prime1)
+
     m_prime2 = np.poly1d(np.round(add(mul(e_enc, sk), c_1) * t / q) % t)
     print("m_prime2: ", m_prime2)
-    m_prime3 = np.poly1d(np.round(add(mul(e_enc, sk), c_2) * t / q) % t)
-    print("m_prime3: ", m_prime3)
-    m_prime4 = np.poly1d(np.round(add(mul(e_enc, sk), c_3) * t / q) % t)
-    print("m_prime: ", m_prime4)
-    m_prime5 = np.poly1d(np.round(add(mul(e_enc, sk), c_4) * t / q) % t)
-    print("m_prime5: ", m_prime5)
+    print("res3: ", m_prime1 == m_prime2)
+    end = time.time()
+    print("verification time: ", end - start)
 
-    adec_alpha = mod_horner(m_prime1, alpha, t)
-    bdec_alpha = mod_horner(m_prime2, alpha, t)
-    cdec_alpha = mod_horner(m_prime3, alpha, t)
-    tdec_alpha = mod_horner(m_prime4, alpha, t)
-    hdec_alpha = mod_horner(m_prime5, alpha, t)
-    print("adec_alpha: ", adec_alpha)
-    print("bdec_alpha: ", bdec_alpha)
-    print("cdec_alpha: ", cdec_alpha)
-    print("tdec_alpha: ", tdec_alpha)
-    print("hdec_alpha: ", hdec_alpha)
+    return m_prime1 == m_prime2
 
-    left3 = (adec_alpha * bdec_alpha - cdec_alpha) % t
-    right3 = (tdec_alpha * hdec_alpha) % t
-
-    print("left3: ", left3)
-    print("right3: ", right3)
-    print("res3: ", left3 == right3)
-    return (left3 == right3)
 
 if __name__ == "__main__":
     alpha, sk, a2, e, pk, u, e1, e2 = setup()
@@ -209,3 +198,4 @@ if __name__ == "__main__":
     proof = prover(pk, u, e1, e2, alpha)
     verification = verifier(sk, proof)
     print(verification)
+    print("proof size: ", sys.getsizeof(proof), " bytes")
