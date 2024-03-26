@@ -4,6 +4,7 @@ import fromLWEtoR1CS as r1
 import fromR1CStoQAP as qap
 import sys
 import time
+import timeit
 
 
 order = 73
@@ -176,9 +177,7 @@ def prover(pk, u, e1, e2, alpha):
     return c1, c2
 
 
-def verifier(sk, proof):
-    start = time.time()
-
+def verifier(proof):
     c_0, c_1 = proof
     check = add(c_0, -c_1)
     print("just a check: ", int(check.coefficients[0]))
@@ -189,16 +188,23 @@ def verifier(sk, proof):
     # m_prime2 = np.poly1d(np.round(add(mul(e_enc, sk), c_1) * t / q) % t)
     # print("m_prime2: ", m_prime2)
     # print("res3: ", m_prime1 == m_prime2)
-    end = time.time()
-    print("verification time: ", end - start)
 
     return int(check.coefficients[0]) == 0
 
-
-if __name__ == "__main__":
+def main():
     alpha, sk, a2, e, pk, u, e1, e2 = setup()
     print(alpha)
     proof = prover(pk, u, e1, e2, alpha)
-    verification = verifier(sk, proof)
-    print(verification)
+    start = time.time()
+    verification = verifier(proof)
+
+    end = time.time()
+    print("verification result:", verification)
+    print("verification time: ", end - start)
     print("proof size: ", sys.getsizeof(proof), " bytes")
+
+
+if __name__ == "__main__":
+    main()
+    # execution_time = timeit.timeit('main()', globals=globals(), number=100)
+    # print("average execution time over 100 runs: ", execution_time)
