@@ -171,15 +171,15 @@ def prover(pk, u, e1, e2, alpha):
     print("c1 check:", c1)
     c2 = add(add(mul(pk[0], u), e1), mul(delta, rhs))
     print("c2 check:", c2)
-    e_enc = add(mul(pk[1], u), e2)
+    # e_enc = add(mul(pk[1], u), e2)
 
-    return e_enc, c1, c2
+    return c1, c2
 
 
 def verifier(sk, proof):
     start = time.time()
 
-    e_enc, c_0, c_1 = proof
+    c_0, c_1 = proof
     check = add(c_0, -c_1)
     print("just a check: ", int(check.coefficients[0]))
     #
