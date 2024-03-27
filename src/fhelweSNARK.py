@@ -137,40 +137,43 @@ def prover(pk, u, e1, e2, alpha):
     # print("Waalpha: ", Wa(alpha))
     # print("Halpha: ", H(alpha))
     # print("Talpha: ", T(alpha))
-    left = (Ua(alpha) * Va(alpha)) - Wa(alpha)
+    left = Ua(alpha) * Va(alpha) - Wa(alpha)
     right = H(alpha) * T(alpha)
     print("left: ", left)
     print("right: ", right)
     print("res1: ", left == right)
 
-    a, b, c, t2, h = to_poly1d(Ua, Va, Wa, T, H, alpha)
-    # print("a: ", a)
-    # print("b: ", b)
-    # print("c: ", c)
-    # print("t2: ", t2)
-    # print("h: ", h)
-    a_alpha = mod_horner(a, alpha, t)
-    b_alpha = mod_horner(b, alpha, t)
-    c_alpha = mod_horner(c, alpha, t)
-    t_alpha = mod_horner(t2, alpha, t)
-    h_alpha = mod_horner(h, alpha, t)
-    print("a_alpha: ", a_alpha)
-    print("b_alpha: ", b_alpha)
-    print("c_alpha: ", c_alpha)
-    print("t_alpha: ", t_alpha)
-    print("h_alpha: ", h_alpha)
-    left2 = (a_alpha * b_alpha - c_alpha) % t
-    right2 = (t_alpha * h_alpha) % t
-    print("left2: ", left2)
-    print("right2: ", right2)
-    print("res2: ", left2 == right2)
+    # a, b, c, t2, h = to_poly1d(Ua, Va, Wa, T, H, alpha)
+    # # print("a: ", a)
+    # # print("b: ", b)
+    # # print("c: ", c)
+    # # print("t2: ", t2)
+    # # print("h: ", h)
+    # a_alpha = mod_horner(a, alpha, t)
+    # b_alpha = mod_horner(b, alpha, t)
+    # c_alpha = mod_horner(c, alpha, t)
+    # t_alpha = mod_horner(t2, alpha, t)
+    # h_alpha = mod_horner(h, alpha, t)
+    # print("a_alpha: ", a_alpha)
+    # print("b_alpha: ", b_alpha)
+    # print("c_alpha: ", c_alpha)
+    # print("t_alpha: ", t_alpha)
+    # print("h_alpha: ", h_alpha)
+    # left2 = (a_alpha * b_alpha - c_alpha) % t
+    # right2 = (t_alpha * h_alpha) % t
+    # print("left2: ", left2)
+    # print("right2: ", right2)
+    # print("res2: ", left2 == right2)
+    #
+    # lhs = (a_alpha * b_alpha - c_alpha) % t
+    # rhs = (t_alpha * h_alpha) % t
+    #
+    # # lhs = (a_alpha * b_alpha - c_alpha) % t
+    # # rhs = (t_alpha * h_alpha) % t
 
-    lhs = (a_alpha * b_alpha - c_alpha) % t
-    rhs = (t_alpha * h_alpha) % t
-
-    c1 = add(add(mul(pk[0], u), e1), mul(delta, lhs))
+    c1 = add(add(mul(pk[0], u), e1), mul(delta, left))
     print("c1 check:", c1)
-    c2 = add(add(mul(pk[0], u), e1), mul(delta, rhs))
+    c2 = add(add(mul(pk[0], u), e1), mul(delta, right))
     print("c2 check:", c2)
     # e_enc = add(mul(pk[1], u), e2)
 
@@ -199,6 +202,8 @@ def main():
     verification = verifier(proof)
 
     end = time.time()
+    # execution_time = timeit.timeit('verifier()', globals=globals(), number=100)
+    # print("average execution time over 100 runs: ", execution_time)
     print("verification result:", verification)
     print("verification time: ", end - start)
     print("proof size: ", sys.getsizeof(proof), " bytes")
