@@ -6,7 +6,7 @@ np.set_printoptions(threshold=sys.maxsize)
 
 n = 2
 
-
+#<A, s> + e = t
 def LWEToR1CS_transform():
 
     num_gates = n * n * 2

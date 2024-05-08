@@ -4,7 +4,7 @@ import fromLWEtoR1CS as r1
 import fromR1CStoQAP as qap
 import sys
 import time
-import timeit
+# import timeit
 
 
 order = 73
@@ -63,42 +63,6 @@ def mod_horner(poly, x, modulus):
         result = (result * x + coefficient) % modulus
     return result
 
-def to_poly1d(As, Bs, Cs, H, T, alpha):
-    Ascoefs = As.coefficients()
-    As1d = np.poly1d(np.array(Ascoefs))
-    print("As: ", As)
-    print("As1d: ", As1d)
-    print("As_alpha: ", As(alpha))
-    print("As1d_alpha: ", mod_horner(As1d, alpha, t))
-
-    Bscoefs = Bs.coefficients()
-    Bs1d = np.poly1d(np.array(Bscoefs))
-    print("Bs: ", Bs)
-    print("Bs1d: ", Bs1d)
-    print("Bs_alpha: ", Bs(alpha))
-    print("Bs1d_alpha: ", mod_horner(Bs1d, alpha, t))
-
-    Cscoefs = Cs.coefficients()
-    Cs1d = np.poly1d(np.array(Cscoefs))
-    print("Cs: ", Cs)
-    print("Cs1d: ", Cs1d)
-    print("Cs_alpha: ", Cs(alpha))
-    print("Cs1d_alpha: ", mod_horner(Cs1d, alpha, t))
-
-    Tcoefs = T.coefficients()
-    T1d = np.poly1d(np.array(Tcoefs))
-    print("T: ", T)
-    print("T1d: ", T1d)
-    print("T_alpha: ", T(alpha))
-    print("T1d_alpha: ", mod_horner(T1d, alpha, t))
-
-    Hcoefs = H.coefficients()
-    H1d = np.poly1d(np.array(Hcoefs))
-    print("H: ", H)
-    print("H1d: ", H1d)
-    print("H_alpha: ", H(alpha))
-    print("H1d_alpha: ", mod_horner(H1d, alpha, t))
-    return As1d, Bs1d, Cs1d, T1d, H1d
 
 def setup():
     alpha = np.random.randint(0, t, 1)[0]
@@ -113,10 +77,10 @@ def setup():
     e2 = np.poly1d(np.random.normal(0, 2, d).astype(int) % q)
     return alpha, sk, a2, e, pk, u, e1, e2
 
-def prover(pk, u, e1, e2, alpha):
+def prover(pk, u, e1, alpha, s):
     A, B, C = r1.LWEToR1CS_transform()
 
-    U, V, W, Ua, Va, Wa = qap.polySum()
+    U, V, W, Ua, Va, Wa = qap.polySum(GF(s))
 
     #vanishing polynomial
     T = galois.Poly([1, order - 1], field=GF)
@@ -143,34 +107,6 @@ def prover(pk, u, e1, e2, alpha):
     print("right: ", right)
     print("res1: ", left == right)
 
-    # a, b, c, t2, h = to_poly1d(Ua, Va, Wa, T, H, alpha)
-    # # print("a: ", a)
-    # # print("b: ", b)
-    # # print("c: ", c)
-    # # print("t2: ", t2)
-    # # print("h: ", h)
-    # a_alpha = mod_horner(a, alpha, t)
-    # b_alpha = mod_horner(b, alpha, t)
-    # c_alpha = mod_horner(c, alpha, t)
-    # t_alpha = mod_horner(t2, alpha, t)
-    # h_alpha = mod_horner(h, alpha, t)
-    # print("a_alpha: ", a_alpha)
-    # print("b_alpha: ", b_alpha)
-    # print("c_alpha: ", c_alpha)
-    # print("t_alpha: ", t_alpha)
-    # print("h_alpha: ", h_alpha)
-    # left2 = (a_alpha * b_alpha - c_alpha) % t
-    # right2 = (t_alpha * h_alpha) % t
-    # print("left2: ", left2)
-    # print("right2: ", right2)
-    # print("res2: ", left2 == right2)
-    #
-    # lhs = (a_alpha * b_alpha - c_alpha) % t
-    # rhs = (t_alpha * h_alpha) % t
-    #
-    # # lhs = (a_alpha * b_alpha - c_alpha) % t
-    # # rhs = (t_alpha * h_alpha) % t
-
     c1 = add(add(mul(pk[0], u), e1), mul(delta, left))
     print("c1 check:", c1)
     c2 = add(add(mul(pk[0], u), e1), mul(delta, right))
@@ -184,20 +120,14 @@ def verifier(proof):
     c_0, c_1 = proof
     check = add(c_0, -c_1)
     print("just a check: ", int(check.coefficients[0]))
-    #
-    # m_prime1 = np.poly1d(np.round(add(mul(e_enc, sk), c_0) * t / q) % t)
-    # print("m_prime1: ", m_prime1)
-    #
-    # m_prime2 = np.poly1d(np.round(add(mul(e_enc, sk), c_1) * t / q) % t)
-    # print("m_prime2: ", m_prime2)
-    # print("res3: ", m_prime1 == m_prime2)
 
     return int(check.coefficients[0]) == 0
 
 def main():
+    s = np.array([1, 2, 4, 1, 2, 3, 2, 1, 0, 1, 1, 1, 0, 3, 0, 1, 3])
     alpha, sk, a2, e, pk, u, e1, e2 = setup()
     print(alpha)
-    proof = prover(pk, u, e1, e2, alpha)
+    proof = prover(pk, u, e1, alpha, s)
     start = time.time()
     verification = verifier(proof)
 

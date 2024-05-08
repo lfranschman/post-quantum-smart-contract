@@ -15,7 +15,7 @@ delta = q // t
 p_q = np.poly1d([1] + ([0] * (d - 1)) + [1])
 print("Field initialized")
 # s = GF(np.array([1, 22, 38, 21, 14, 37, 19, 1, 0, 1, 1, 21, 0, 37, 0, 21, 37]))
-s = GF(np.array([1, 2, 4, 1, 2, 3, 2, 1, 0, 1, 1, 1, 0, 3, 0, 1, 3]))
+# s = GF(np.array([1, 2, 4, 1, 2, 3, 2, 1, 0, 1, 1, 1, 0, 3, 0, 1, 3]))
 # s = GF(np.array([1, 6, 2, 1, 2, 3, 7, 0, 0, 1, 1, 2, 0, 3, 0, 1, 8]))
 
 
@@ -36,7 +36,7 @@ def get_polys_of_matrix(matrix):
         polys.append(interpolate_column(GF(np.array(column)), nb_of_rows))
     return np.array(polys)
 
-def polySum():
+def polySum(s):
     A, B, C = r1.LWEToR1CS_transform()
     # witness = np.array([1, 2, 4, 1, 2, 3, 2, 1, 0, 1, 1, 1, 0, 3, 0, 1, 3])
     print(np.matmul(C, np.array(s)) == (np.matmul(A, np.array(s)) * np.matmul(B, np.array(s))))
