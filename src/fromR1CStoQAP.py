@@ -9,7 +9,7 @@ order = 73
 GF = galois.GF(order)
 q = 2741
 t = 73
-d = 12
+d = 57
 delta = q // t
 # Polynomial modulus
 p_q = np.poly1d([1] + ([0] * (d - 1)) + [1])

@@ -1,0 +1,30 @@
+{
+  "name": "src",
+  "version": "1.0.0",
+  "description": "Verification for lattice-zkp authentication",
+  "main": "ChainCode.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/lfranschman/post-quantum-smart-contract.git"
+  },
+  "keywords": [
+    "zkp",
+    "snark",
+    "lattice",
+    "lwe",
+    "blockchain"
+  ],
+  "author": "Lesley Franschman",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/lfranschman/post-quantum-smart-contract/issues"
+  },
+  "homepage": "https://github.com/lfranschman/post-quantum-smart-contract#readme",
+  "dependencies": {
+    "fabric-contract-api": "^2.5.4",
+    "fabric-shim": "^2.5.4"
+  }
+}

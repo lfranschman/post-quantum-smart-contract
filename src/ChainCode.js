@@ -1,22 +1,26 @@
-    'use strict';
+'use strict';
 
-    const { Contract, Context } = require('fabric-contract-api');
+const { Contract } = require('fabric-contract-api');
 
-    class SmartContract extends Contract {
+class SmartContract extends Contract {
+    async VerifyProof(ctx, proof) {
+        const [c_0, c_1] = proof;
 
-        async VerifyProof(ctx, proof) {
-            // Implement logic to verify the proof
-            const isValid = this.verifyProofLogic(proof);
-            return isValid;
+        if (c_0.length !== c_1.length) {
+            return false;
         }
 
-        verifyProofLogic(proof) {
-            [c_0, c_1] = proof
-            check = add(c_0, -c_1)
-            print("just a check: ", int(check.coefficients[0]))
-
-            return int(check.coefficients[0]) == 0
+        // Verify each element in the arrays
+        for (let i = 0; i < c_0.length; i++) {
+            if (c_0[i] !== c_1[i]) {
+                return false;
+            }
         }
+
+        // If all elements match, return true
+        return true;
     }
 
-    module.exports = SmartContract;
+}
+
+module.exports = SmartContract;
