@@ -39,42 +39,22 @@ async def main():
     
     w = [1, 5, 8, 1, 8, 4, 7, 1, 0, 6, 4, 9, 1, 0, 8, 0, 1, 5, 0, 3, 2, 1, 0, 0, 1, 1, 1, 0, 1, 4, 0, 0, 0, 6, 0, 0, 1, 0, 0, 0, 1, 5, 0, 0, 2, 4, 4, 4, 6, 6, 7, 0, 0, 1, 5, 5, 7]
 
-    w_encrypted_1 = fhelweSNARK.add(fhelweSNARK.add(fhelweSNARK.mul(pk[0], u), e1), fhelweSNARK.mul(delta, np.poly1d(w)))
-    w_encrypted_2 = fhelweSNARK.add(fhelweSNARK.mul(pk[1], u), e2)
+       
+    proof = fhelweSNARK.prover(pk, u, e1, alpha, w)
+    proof_response = [p.coeffs.tolist() for p in proof]
 
-    logging.info(f"w_encrypted_1: {w_encrypted_1}")
-    logging.info(f"w: {np.poly1d(w)}")
-    logging.info(f"decryption_check: {np.array(np.round(fhelweSNARK.add(fhelweSNARK.mul(w_encrypted_2, sk), w_encrypted_1) * t / q) % t)}")
     
-    witness_data = {
-        "w1": w_encrypted_1.coeffs.tolist(),
-        "w2": w_encrypted_2.coeffs.tolist(),
-        "pk": (pk[0].coeffs.tolist(), pk[1].coeffs.tolist()),
-        "sk": sk.coeffs.tolist(),
-        "e": e.coeffs.tolist(),
-        "u": u.coeffs.tolist(),
-        "e1": e1.coeffs.tolist(),
-        "e2": e2.coeffs.tolist(),
-        "alpha": int(alpha),
-        "t": t,
-        "q": q        
+    print("proof_response: ", proof_response)
+#    data = proof_response['proof']
+    url = "http://localhost:2800/checkProof"
+    payload = json.dumps(proof_response)
+    headers = {
+    'Content-Type': 'application/json'
     }
-
-    proof_response = send_witness_data(off_chain_service_url, witness_data)
-
-    if proof_response:
-        logging.info("Success: Proof response received")
-        data = proof_response['proof']
-        url = "http://localhost:2800/checkProof"
-        payload = json.dumps(data)
-        headers = {
-            'Content-Type': 'application/json'
-        }
-        response = requests.post(url, headers=headers, data=payload)
-        logging.info(f"Check Proof response status: {response.status_code}")
-        logging.info(f"Check Proof response content: {response.content}")
-    else:
-        logging.error("Failed to get valid response from service.")
+    response = requests.post(url, headers=headers, data=payload)
+    logging.info(f"Check Proof response status: {response.status_code}")
+    logging.info(f"Check Proof response content: {response.content}")
+    
 
 if __name__ == "__main__":
     asyncio.run(main())
