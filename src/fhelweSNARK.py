@@ -4,6 +4,7 @@ import fromLWEtoR1CS as r1
 import fromR1CStoQAP as qap
 import sys
 import timeit
+import oqs
 
 order = 73
 GF = galois.GF(order)
@@ -56,10 +57,37 @@ def prover(pk, u, e1, alpha, s):
 
     return c1, c2
 
-def verifier(proof):
+def generate_and_sign_proof(proof_data):
+    # Ensure proof_data is a byte string
+    proof_data_bytes = str(proof_data).encode('utf-8')
+
+    # Initialize the signature scheme
+    with oqs.Signature("Dilithium2") as signer:
+        # Generate keypair
+        public_key = signer.generate_keypair()
+        
+        # Sign the proof data
+        signature = signer.sign(proof_data_bytes)
+
+        return public_key, signature
+
+
+def verify_proof_signature(proof_data, public_key, signature):
+    # Ensure proof_data is a byte string
+    proof_data_bytes = str(proof_data).encode('utf-8')
+
+    # Initialize the signature scheme
+    with oqs.Signature("Dilithium2") as verifier:
+        # Verify the signature
+        is_valid = verifier.verify(proof_data_bytes, signature, public_key)
+        return is_valid
+
+
+def verifier(proof, public_key, signature):
     c_0, c_1 = proof
     check = add(c_0, -c_1)
-    return int(check.coefficients[0]) == 0
+    proof_untampered = verify_proof_signature(proof, public_key, signature)
+    return int(check.coefficients[0]) == 0 & proof_untampered
 
 def main():
     s = np.array([1, 5, 8, 1, 8, 4, 7, 1, 0, 6, 4, 9, 1, 0, 8, 0, 1, 5, 0, 3, 2, 1, 0, 0, 1, 1, 1, 0, 1, 4, 0, 0, 0, 6, 0, 0, 1, 0, 0, 0, 1, 5, 0, 0, 2, 4, 4, 4, 6, 6, 7, 0, 0, 1, 5, 5, 7])
@@ -67,10 +95,11 @@ def main():
 
     start_prover = timeit.default_timer()
     proof = prover(pk, u, e1, alpha, s)
+    public_key, signature = generate_and_sign_proof(proof)
     end_prover = timeit.default_timer()
 
     start_verifier = timeit.default_timer()
-    verification = verifier(proof)
+    verification = verifier(proof, public_key, signature)
     end_verifier = timeit.default_timer()
 
     print("verification result:", verification)
@@ -84,7 +113,7 @@ if __name__ == "__main__":
     main()
     prover_times = []
     verifier_times = []
-    for _ in range(50):
+    for _ in range(2):
         prover_time, verifier_time = main()
         prover_times.append(prover_time)
         verifier_times.append(verifier_time)
