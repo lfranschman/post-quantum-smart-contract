@@ -1,0 +1,58 @@
+{
+  "name": "@asanrom/dilithium",
+  "version": "1.1.1",
+  "description": "Implementation of post-quantum signature algorithm: CRYSTALS-Dilithium.",
+  "main": "dist/index.js",
+  "typings": "dist/index.d.ts",
+  "homepage": "https://github.com/AgustinSRG/crystals-dilithium-js",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/AgustinSRG/crystals-dilithium-js"
+  },
+  "scripts": {
+    "prebuild": "npm run lint",
+    "compile": "tsc --pretty --declaration && webpack",
+    "build": "rimraf dist && npm run compile",
+    "lint": "eslint --fix src/**/*.ts",
+    "test": "env TS_NODE_COMPILER_OPTIONS='{\"module\": \"commonjs\" }' mocha -r ts-node/register 'tests/**/*.ts'",
+    "gendoc": "typedoc --out docs ./src && cp tests/test.html docs/test.html && cp dist.webpack/dilithium.js docs/dilithium.js"
+  },
+  "files": [
+    "dist/"
+  ],
+  "author": {
+    "name": "Agustin San Roman",
+    "email": "agustinsanromanguzman@gmail.com",
+    "url": "https://github.com/AgustinSRG"
+  },
+  "engines": {
+    "node": ">= 16.0.0"
+  },
+  "pre-commit": [
+    "lint"
+  ],
+  "devDependencies": {
+    "@types/chai": "4.3.4",
+    "@types/mocha": "10.0.1",
+    "@types/node": "18.15.3",
+    "@typescript-eslint/eslint-plugin": "5.55.0",
+    "@typescript-eslint/parser": "5.55.0",
+    "chai": "4.3.7",
+    "eslint": "8.36.0",
+    "mocha": "10.2.0",
+    "rimraf": "4.4.0",
+    "ts-loader": "9.4.2",
+    "ts-node": "10.9.1",
+    "typedoc": "0.23.27",
+    "typescript": "4.9.5",
+    "webpack": "5.76.2",
+    "webpack-cli": "5.0.1"
+  },
+  "license": "Apache-2.0",
+  "dependencies": {
+    "buffer": "6.0.3",
+    "long": "5.2.1",
+    "randombytes": "2.1.0",
+    "sha3": "2.1.4"
+  }
+}

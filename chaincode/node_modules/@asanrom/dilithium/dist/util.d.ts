@@ -1,0 +1,16 @@
+import { DilithiumParameterSpec } from './param';
+import { PolynomiumVector } from './poly-vec';
+export declare function mergeArrays(arrays: Uint8Array[]): Uint8Array;
+export declare function clearBuffer(buf: Uint8Array): void;
+export declare function getSHAKE256Digest(sz: number, ...arr: Uint8Array[]): Uint8Array;
+export declare function crh(p: Uint8Array): Uint8Array;
+export declare function getPolyEtaPackedBytes(eta: number): number;
+export declare function getPolyW1PackedBytes(gamma2: number): number;
+export declare function getPolyZPackedBytes(gamma1: number): number;
+export declare function getSignatureByteLength(spec: DilithiumParameterSpec): number;
+export declare function getPublicKeyByteLength(spec: DilithiumParameterSpec): number;
+export declare function getPrivateKeyByteLength(spec: DilithiumParameterSpec): number;
+export declare function packPubKey(rho: Uint8Array, t: PolynomiumVector): Uint8Array;
+export declare function packPrvKey(eta: number, rho: Uint8Array, tr: Uint8Array, K: Uint8Array, t0: PolynomiumVector, s1: PolynomiumVector, s2: PolynomiumVector): Uint8Array;
+export declare function packSig(gamma1: number, omega: number, sig: Uint8Array, c: Uint8Array, z: PolynomiumVector, h: PolynomiumVector): void;
+export declare function packw1(gamma2: number, w: PolynomiumVector, sig: Uint8Array): void;

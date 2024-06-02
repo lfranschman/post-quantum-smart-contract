@@ -1,0 +1,33 @@
+export declare class Polynomium {
+    static genRandom(rho: Uint8Array, eta: number, nonce: number): Polynomium;
+    static genUniformRandom(rho: Uint8Array, nonce: number): Polynomium;
+    static genRandomGamma1(seed: Uint8Array, nonce: number, n: number, gamma1: number): Polynomium;
+    static generateChallenge(tau: number, seed: Uint8Array): Polynomium;
+    static etaunpack(eta: number, bytes: Uint8Array, off: number): Polynomium;
+    static t0unpack(bytes: Uint8Array, off: number): Polynomium;
+    static t1unpack(bytes: Uint8Array, off: number): Polynomium;
+    static zunpack(gamma1: number, sig: Uint8Array, off: number): Polynomium;
+    private static rej_eta;
+    private static rej_uniform;
+    private static montgomery_reduce;
+    coef: number[];
+    constructor(length: number);
+    add(other: Polynomium): Polynomium;
+    sub(other: Polynomium): Polynomium;
+    toString(): string;
+    ntt(): Polynomium;
+    pointwiseMontgomery(other: Polynomium): Polynomium;
+    reduce(): void;
+    private static reduce32;
+    invnttTomont(): void;
+    caddq(): void;
+    powerRound(): Polynomium[];
+    t1pack(r: Uint8Array, off: number): void;
+    etapack(eta: number, buf: Uint8Array, off: number): void;
+    t0pack(buf: Uint8Array, off: number): void;
+    decompose(gamma2: number): Polynomium[];
+    w1pack(gamma2: number, buf: Uint8Array, off: number): void;
+    chknorm(B: number): boolean;
+    zpack(gamma1: number, sign: Uint8Array, off: number): void;
+    shiftl(): Polynomium;
+}

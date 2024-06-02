@@ -1,0 +1,15 @@
+export declare const N = 256;
+export declare const Q = 8380417;
+export declare const QINV = 58728449;
+export declare const D = 13;
+export declare const POLYT0_PACKEDBYTES = 416;
+export declare const POLYT1_PACKEDBYTES = 320;
+export declare const SEEDBYTES = 32;
+export declare const CRHBYTES = 48;
+export declare const SHAKE128_RATE = 168;
+export declare const SHAKE256_RATE = 136;
+export declare const STREAM128_BLOCKBYTES = 168;
+export declare const STREAM256_BLOCKBYTES = 136;
+export declare const POLY_UNIFORM_GAMMA1_NBLOCKS: number;
+export declare const zetas: number[];
+export declare const POLY_UNIFORM_NBLOCKS: number;

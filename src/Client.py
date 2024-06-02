@@ -5,6 +5,9 @@ import os
 import numpy as np
 import fhelweSNARK
 import asyncio
+import oqs
+import base64
+import dilithium_sig as dilsig
 
 # Configure basic logger
 logging.basicConfig(level=logging.INFO)
@@ -38,23 +41,37 @@ async def main():
     alpha, sk, a2, e, pk, u, e1, e2 = fhelweSNARK.setup()
     
     w = [1, 5, 8, 1, 8, 4, 7, 1, 0, 6, 4, 9, 1, 0, 8, 0, 1, 5, 0, 3, 2, 1, 0, 0, 1, 1, 1, 0, 1, 4, 0, 0, 0, 6, 0, 0, 1, 0, 0, 0, 1, 5, 0, 0, 2, 4, 4, 4, 6, 6, 7, 0, 0, 1, 5, 5, 7]
-
        
     proof = fhelweSNARK.prover(pk, u, e1, alpha, w)
     proof_response = [p.coeffs.tolist() for p in proof]
 
-    
+           
     print("proof_response: ", proof_response)
-#    data = proof_response['proof']
     url = "http://localhost:2800/checkProof"
-    payload = json.dumps(proof_response)
+    
+    
+    signed_proof =  dilsig.sign_proof(proof_response)
+
+    # Extracting the required values from the signed proof
+    public_key = signed_proof["publicKey"]
+    print("public_key: ", public_key)
+
+    signature = signed_proof["signature"]
+    print("signature: ", signature)
+    
+
+    payload_dict = {
+        "proof": proof_response,
+        "public_key": public_key,
+        "signature": signature
+    }	
+    payload = json.dumps(payload_dict)
     headers = {
-    'Content-Type': 'application/json'
+        'Content-Type': 'application/json'
     }
     response = requests.post(url, headers=headers, data=payload)
     logging.info(f"Check Proof response status: {response.status_code}")
     logging.info(f"Check Proof response content: {response.content}")
-    
 
 if __name__ == "__main__":
     asyncio.run(main())

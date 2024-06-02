@@ -4,7 +4,9 @@ import fromLWEtoR1CS as r1
 import fromR1CStoQAP as qap
 import sys
 import timeit
-import oqs
+import subprocess
+import json
+import dilithium_sig as dilsig 
 
 order = 73
 GF = galois.GF(order)
@@ -57,79 +59,42 @@ def prover(pk, u, e1, alpha, s):
 
     return c1, c2
 
-def generate_and_sign_proof(proof_data):
-    # Ensure proof_data is a byte string
-    proof_data_bytes = str(proof_data).encode('utf-8')
-
-    # Initialize the signature scheme
-    with oqs.Signature("Dilithium2") as signer:
-        # Generate keypair
-        public_key = signer.generate_keypair()
-        
-        # Sign the proof data
-        signature = signer.sign(proof_data_bytes)
-
-        return public_key, signature
-
-
-def verify_proof_signature(proof_data, public_key, signature):
-    # Ensure proof_data is a byte string
-    proof_data_bytes = str(proof_data).encode('utf-8')
-
-    # Initialize the signature scheme
-    with oqs.Signature("Dilithium2") as verifier:
-        # Verify the signature
-        is_valid = verifier.verify(proof_data_bytes, signature, public_key)
-        return is_valid
-
 
 def verifier(proof, public_key, signature):
     c_0, c_1 = proof
-    check = add(c_0, -c_1)
-    proof_untampered = verify_proof_signature(proof, public_key, signature)
-    return int(check.coefficients[0]) == 0 & proof_untampered
+    #check = add(c_0, -c_1)
+    proof_untampered = dilsig.verify_signature(public_key, proof, signature)
+    return c_0 == c_1 and proof_untampered
+
 
 def main():
     s = np.array([1, 5, 8, 1, 8, 4, 7, 1, 0, 6, 4, 9, 1, 0, 8, 0, 1, 5, 0, 3, 2, 1, 0, 0, 1, 1, 1, 0, 1, 4, 0, 0, 0, 6, 0, 0, 1, 0, 0, 0, 1, 5, 0, 0, 2, 4, 4, 4, 6, 6, 7, 0, 0, 1, 5, 5, 7])
     alpha, sk, a2, e, pk, u, e1, e2 = setup()
 
     start_prover = timeit.default_timer()
-    proof = prover(pk, u, e1, alpha, s)
-    public_key, signature = generate_and_sign_proof(proof)
+    proofpolys = prover(pk, u, e1, alpha, s)
+    proof = [p.coeffs.tolist() for p in proofpolys]
+
+    print("Proof generated:", proof)
     end_prover = timeit.default_timer()
+    
+    signed_proof =  dilsig.sign_proof(proof)
+    
+    # Extracting the required values from the signed proof
+    public_key = signed_proof["publicKey"]
+    signature = signed_proof["signature"]
 
     start_verifier = timeit.default_timer()
     verification = verifier(proof, public_key, signature)
     end_verifier = timeit.default_timer()
 
-    print("verification result:", verification)
-    print("proof generation runtime: ", end_prover - start_prover, "s")
-    print("verification time: ", end_verifier - start_verifier, "s")
-    print("proof size: ", sys.getsizeof(proof), " bytes")
+    print("Verification result:", verification)
+    print("Proof generation runtime: ", end_prover - start_prover, "s")
+    print("Verification time: ", end_verifier - start_verifier, "s")
+    print("Proof size: ", sys.getsizeof(proof), " bytes")
 
     return end_prover - start_prover, end_verifier - start_verifier
 
 if __name__ == "__main__":
     main()
-    prover_times = []
-    verifier_times = []
-    for _ in range(2):
-        prover_time, verifier_time = main()
-        prover_times.append(prover_time)
-        verifier_times.append(verifier_time)
 
-    average_prover_time = sum(prover_times) / len(prover_times)
-    average_verifier_time = sum(verifier_times) / len(verifier_times)
-
-    min_prover_time = min(prover_times)
-    max_prover_time = max(prover_times)
-    min_verifier_time = min(verifier_times)
-    max_verifier_time = max(verifier_times)
-
-    print(f"Average proof generation time over 50 runs: {average_prover_time} s")
-    print(f"Lowest proof generation time over 50 runs: {min_prover_time} s")
-    print(f"Highest proof generation time over 50 runs: {max_prover_time} s")
-
-    print(f"Average verification time over 50 runs: {average_verifier_time} s")
-    print(f"Lowest verification time over 50 runs: {min_verifier_time} s")
-    print(f"Highest verification time over 50 runs: {max_verifier_time} s")
