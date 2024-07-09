@@ -5,11 +5,12 @@ import fromLWEtoR1CS as r1
 
 
 print("Initializing a large field...")
-order = 73
+order = 701
 GF = galois.GF(order)
-q = 2741
-t = 73
-d = 57
+q = 2**8
+print("q: ", q)
+t = order
+d = 64
 delta = q // t
 # Polynomial modulus
 p_q = np.poly1d([1] + ([0] * (d - 1)) + [1])
@@ -20,6 +21,7 @@ print("Field initialized")
 
 
 def interpolate_column(col, nb):
+    print("nb: ", nb)
     xs = GF(np.arange(1, nb+1))
     # print(col)
     return galois.lagrange_poly(xs, col)
@@ -28,8 +30,11 @@ def get_polys_of_matrix(matrix):
     polys = []
     nb_of_rows = len(matrix)
     nb_of_columns = len(matrix[0])
+    print("nb_of_rows: ", nb_of_rows)
+    print("nb_of_columns: ", nb_of_columns)
     # for each column
     for col_id in range(nb_of_columns):
+        print("col_id: ", col_id)
         column = []
         for row in range(nb_of_rows):
             column.append(matrix[row][col_id])

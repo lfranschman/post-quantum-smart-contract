@@ -4,7 +4,7 @@ import sys
 
 np.set_printoptions(threshold=sys.maxsize)
 
-n = 4
+n = 6
 
 #<A, s> + e = t
 def LWEToR1CS_transform():
